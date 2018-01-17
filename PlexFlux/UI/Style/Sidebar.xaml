@@ -1,0 +1,95 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Side bar header -->
+    <Style x:Key="SidebarListHeader" TargetType="{x:Type Label}">
+        <Setter Property="Foreground" Value="#33FFFFFF" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Padding" Value="15" />
+        <Setter Property="Margin" Value="0,0,0,-8" />
+    </Style>
+
+    <Style x:Key="SidebarListHeaderButtonPanel" TargetType="{x:Type StackPanel}">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="0,9,0,0" />
+    </Style>
+
+    <Style x:Key="SidebarItem" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#00000000" />
+        <Setter Property="Foreground" Value="#00000000" />
+        <Setter Property="Height" Value="40" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#33000000" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#66000000" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#33000000" />
+                <Setter Property="Foreground" Value="#FFCC7B19" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="SidebarTinyButton" TargetType="{x:Type Button}">
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Background" Value="#99FFFFFF" />
+        <Setter Property="Foreground" Value="#99FFFFFF" />
+        <Setter Property="Margin" Value="12,0,0,0" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border>
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#33FFFFFF" />
+                <Setter Property="Foreground" Value="#33FFFFFF" />
+            </Trigger>
+
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#66FFFFFF" />
+                <Setter Property="Foreground" Value="#66FFFFFF" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="SidebarRefreshTinyButton" TargetType="{x:Type Button}" BasedOn="{StaticResource SidebarTinyButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="#01000000" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Viewbox Stretch="Fill" >
+                            <Canvas Width="32" Height="32">
+                                <Path Data=" M16 2 A14 14 0 0 0 2 16 A14 14 0 0 0 16 30 A14 14 0 0 0 26 26 L 23.25 23 A10 10 0 0 1 16 26 A10 10 0 0 1 6 16 A10 10 0 0 1 16 6 A10 10 0 0 1 23.25 9 L19 13 L30 13 L30 2 L26 6 A14 14 0 0 0 16 2" Fill="{TemplateBinding Background}"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SidebarAddTinyButton" TargetType="{x:Type Button}" BasedOn="{StaticResource SidebarTinyButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="#01000000" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Viewbox Stretch="Fill" >
+                            <Canvas Width="15" Height="15">
+                                <Path Data="M14,8 L8,8 L8,14 L6,14 L6,8 L0,8 L0,6 L6,6 L6,0 L8,0 L8,6 L14,6 L14,8 L14,8 Z" Fill="{TemplateBinding Background}"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

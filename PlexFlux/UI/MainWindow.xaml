@@ -1,0 +1,248 @@
+﻿<Window x:Class="PlexFlux.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PlexFlux.UI"
+        xmlns:component="clr-namespace:PlexFlux.UI.Component"
+        mc:Ignorable="d"
+        Title="PlexFlux" WindowStyle="SingleBorderWindow" ResizeMode="CanResize"
+        Style="{StaticResource PlexFluxWindow}"
+        Width="900" Height="600" WindowStartupLocation="CenterScreen"
+        MinWidth="600" MinHeight="400" DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Loaded="Window_Loaded" Closed="Window_Closed" Closing="Window_Closing" MouseDown="Window_MouseDown" KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <BitmapImage x:Key="PlayImage" UriSource="../Assets/taskbar thumb/play.png" />
+        <BitmapImage x:Key="PauseImage" UriSource="../Assets/taskbar thumb/pause.png" />
+        <BitmapImage x:Key="PreviousTrackImage" UriSource="../Assets/taskbar thumb/previous track.png" />
+        <BitmapImage x:Key="NextTrackImage" UriSource="../Assets/taskbar thumb/next track.png" />
+    </Window.Resources>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="MediaCommands.Play" CanExecute="MediaCommands_Play_CanExecute" Executed="MediaCommands_Play_Executed" />
+        <CommandBinding Command="MediaCommands.Pause" CanExecute="MediaCommands_Pause_CanExecute" Executed="MediaCommands_Pause_Executed" />
+        <CommandBinding Command="MediaCommands.NextTrack" CanExecute="MediaCommands_NextTrack_CanExecute" Executed="MediaCommands_NextTrack_Executed" />
+        <CommandBinding Command="MediaCommands.PreviousTrack" CanExecute="MediaCommands_PreviousTrack_CanExecute" Executed="MediaCommands_PreviousTrack_Executed" />
+    </Window.CommandBindings>
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo>
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfoCollection>
+                    <ThumbButtonInfo
+                        DismissWhenClicked="False"
+                        Command="MediaCommands.PreviousTrack"
+                        CommandTarget="{Binding ElementName=buttonPreviousTrack}"
+                        Description="Previous"
+                        ImageSource="{StaticResource ResourceKey=PreviousTrackImage}" />
+                    <ThumbButtonInfo
+                        DismissWhenClicked="False"
+                        Command="MediaCommands.Play"
+                        CommandTarget="{Binding ElementName=buttonPlay}"
+                        Description="Play"
+                        ImageSource="{StaticResource ResourceKey=PlayImage}" />
+                    <ThumbButtonInfo
+                        DismissWhenClicked="False"
+                        Command="MediaCommands.Pause"
+                        CommandTarget="{Binding ElementName=buttonPause}"
+                        Description="Pause"
+                        ImageSource="{StaticResource ResourceKey=PauseImage}" 
+                        Visibility="Collapsed" />
+                    <ThumbButtonInfo
+                        DismissWhenClicked="False"
+                        Command="MediaCommands.NextTrack"
+                        CommandTarget="{Binding ElementName=buttonNextTrack}"
+                        Description="Next"
+                        ImageSource="{StaticResource ResourceKey=NextTrackImage}" />
+                </ThumbButtonInfoCollection>
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition />
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="225"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <!-- Top Bar -->
+        <Grid Grid.Column="0" Grid.Row="0" Style="{StaticResource GridBar}">
+            <!-- App button -->
+            <Button x:Name="buttonApp" Style="{StaticResource PlexServerButton}" Content="{Binding Path=ServerName}" Tag="{Binding Path=ServerAddress}" Click="buttonApp_Click">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Switch User" Click="MenuItemSwitchUser_Click" />
+                        <MenuItem Header="Switch Server" Click="MenuItemSwitchServer_Click" />
+                        <Separator />
+                        <MenuItem Header="Refresh" />
+                        <Separator />
+                        <MenuItem Header="Check for updates" />
+                        <MenuItem Header="About PlexFlux..." />
+                        <Separator />
+                        <MenuItem Header="Quit" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+        </Grid>
+
+        <!-- Side Bar -->
+        <Grid Grid.Column="0" Grid.Row="1" Background="#68000000">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style x:Key="PlayQueueButton" TargetType="{x:Type Button}" BasedOn="{StaticResource SidebarItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="5"/>
+                                                    <ColumnDefinition Width="45"/>
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Grid.Column="0" Background="{TemplateBinding Foreground}" />
+
+                                                <Viewbox Grid.Column="1" Stretch="Fill" Margin="10">
+                                                    <Canvas Width="48" Height="48">
+                                                        <Path Data="M30 12H6v4h24v-4zm0 8H6v4h24v-4zM6 32h16v-4H6v4zm28-20v16.37c-.63-.23-1.29-.37-2-.37-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6V16h6v-4H34z" Fill="White" />
+                                                    </Canvas>
+                                                </Viewbox>
+
+                                                <TextBlock Grid.Column="2" 
+                                                           VerticalAlignment="Center" 
+                                                           FontSize="14" 
+                                                           TextWrapping="Wrap" 
+                                                           TextTrimming="CharacterEllipsis" 
+                                                           Margin="0,-2,0,0"
+                                                           Foreground="#FFFFFFFF"
+                                                           Text="Play Queue" />
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Label Style="{StaticResource SidebarListHeader}">P L E X F L U X</Label>
+
+                    <!-- Play queue -->
+                    <Button x:Name="buttonPlayQueue" Style="{StaticResource PlayQueueButton}" Click="buttonPlayQueue_Click" IsEnabled="True">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Remove All" Click="buttonPlayQueue_RemoveAll_Click" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+
+                    <!-- Playlist list -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="63"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Style="{StaticResource SidebarListHeader}">P L A Y L I S T S</Label>
+
+                        <StackPanel Grid.Column="1" Style="{StaticResource SidebarListHeaderButtonPanel}">
+                            <Button ToolTip="Create" Style="{StaticResource SidebarAddTinyButton}" />
+                            <Button ToolTip="Refresh" Style="{StaticResource SidebarRefreshTinyButton}" Click="RefreshPlaylistButton_Click" />
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl x:Name="panelPlaylists" ItemsSource="{Binding Path=Playlists}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <component:PlaylistSidebarItem Playlist="{Binding}" Click="PlaylistSidebarItem_Click">
+                                    <component:PlaylistSidebarItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Play All" Click="PlaylistSidebarItem_PlayAll_Click" />
+                                            <MenuItem Header="Add to Play Queue" Click="PlaylistSidebarItem_AddToPlayQueue_Click" />
+                                            <Separator />
+                                            <MenuItem Header="Delete Playlist" Click="PlaylistSidebarItem_Delete_Click"/>
+                                        </ContextMenu>
+                                    </component:PlaylistSidebarItem.ContextMenu>
+                                </component:PlaylistSidebarItem>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Library list -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="39"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Style="{StaticResource SidebarListHeader}">L I B R A R I E S</Label>
+
+                        <StackPanel Grid.Column="1" Style="{StaticResource SidebarListHeaderButtonPanel}">
+                            <Button ToolTip="Refresh" Style="{StaticResource SidebarRefreshTinyButton}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl x:Name="panelLibraries" ItemsSource="{Binding Path=Libraries}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <component:LibrarySidebarItem Library="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Main content -->
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" >
+            <Frame 
+               x:Name="frame"
+               NavigationUIVisibility="Hidden"
+               HorizontalContentAlignment="Stretch" 
+               VerticalContentAlignment="Stretch" />
+            
+            <component:VolumeControl x:Name="panelVolumeControl"
+                                     HorizontalAlignment="Right" 
+                                     VerticalAlignment="Bottom"
+                                     Margin="10"/>
+        </Grid>
+        
+
+        <!-- Bottom Bar -->
+        <Grid Grid.Column="0" Grid.Row="2" Style="{StaticResource GridBar}">
+            <!-- Now Playing -->
+            <StackPanel Orientation="Horizontal">
+
+
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Column="1" Grid.Row="2" Style="{StaticResource GridBar}">
+            <component:PlaybackControl HorizontalAlignment="Right" Margin="0,0,5,0" />
+        </Grid>
+
+        <!-- Loading screen -->
+        <Border x:Name="panelLoading" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Background="#CC000000" Visibility="Collapsed">
+            <Viewbox VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="50" Height="50">
+                <component:Spinner Width="24" Height="24" />
+            </Viewbox>
+        </Border>
+    </Grid>
+</Window>
