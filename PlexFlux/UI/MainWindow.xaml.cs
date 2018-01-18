@@ -480,7 +480,16 @@ namespace PlexFlux.UI
             var playback = PlaybackManager.GetInstance();
 
             if (playback.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+            {
                 e.CanExecute = false;
+                return;
+            }
+               
+            if (playback.PlaybackState == NAudio.Wave.PlaybackState.Paused)
+            {
+                e.CanExecute = true;
+                return;
+            }
 
             var page = frame.Content;
             var playQueue = PlayQueueManager.GetInstance();

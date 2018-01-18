@@ -6,10 +6,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Reflection;
-using PlexLib;
 using System.Net;
+using System.Xml;
+using PlexLib;
 using PlexFlux.UI;
-using NAudio.Wave;
+using PlexFlux.IPC;
+using System.Windows.Input;
+using System.Threading;
 
 namespace PlexFlux
 {
@@ -29,6 +32,13 @@ namespace PlexFlux
 
         protected override void OnStartup(StartupEventArgs e)
         {
+#if DEBUG
+            while (!System.Diagnostics.Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
+#endif
+
             base.OnStartup(e);
             uiContext = TaskScheduler.FromCurrentSynchronizationContext();
 
@@ -47,6 +57,10 @@ namespace PlexFlux
             myPlexClient = new MyPlexClient(deviceInfo, config.AuthenticationToken.Length == 0 ? null : config.AuthenticationToken);
             plexConnection = null;
             plexClient = null;
+
+            // init IPC
+            var ipc = IPCManager.GetInstance();
+            ipc.Init();
         }
 
         protected override void OnExit(ExitEventArgs e)

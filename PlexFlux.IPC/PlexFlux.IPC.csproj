@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B1BBE601-DFBA-4495-ACD6-4B7BFE08BD2A}</ProjectGuid>
+    <ProjectGuid>{8C9F99B9-8C52-426D-B86D-505764F400D7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlexLib</RootNamespace>
-    <AssemblyName>PlexLib</AssemblyName>
+    <RootNamespace>PlexFlux.IPC</RootNamespace>
+    <AssemblyName>PlexFlux.IPC</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,9 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NamedPipeWrapper, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NamedPipeWrapper.1.5.0\lib\net40\NamedPipeWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,18 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyPlexClient.cs" />
-    <Compile Include="PlexAlbum.cs" />
-    <Compile Include="PlexArtist.cs" />
-    <Compile Include="PlexClient.cs" />
-    <Compile Include="PlexConnection.cs" />
-    <Compile Include="PlexDeviceInfo.cs" />
-    <Compile Include="PlexLibrary.cs" />
-    <Compile Include="PlexMediaPart.cs" />
-    <Compile Include="PlexPlaylist.cs" />
-    <Compile Include="PlexServer.cs" />
-    <Compile Include="PlexTrack.cs" />
+    <Compile Include="IPCClient.cs" />
+    <Compile Include="IPCMessageFactory.cs" />
+    <Compile Include="IPCServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -46,16 +46,12 @@ namespace PlexFlux.UI.Component
             private set;
         }
 
-        private CancellationTokenSource positionTokenSource;
         private CancellationTokenSource artworkResizeTokenSource;
 
         public NowPlaying()
         {
             Upcomings = new ObservableCollection<PlexTrack>();
-
             InitializeComponent();
-
-            positionTokenSource = new CancellationTokenSource();
             artworkResizeTokenSource = new CancellationTokenSource();
         }
 
@@ -85,52 +81,11 @@ namespace PlexFlux.UI.Component
             imageArtwork.BeginStoryboard((Storyboard)FindResource("FadeIn"));
         }
 
-        private async void UpdatePlaybackPosition()
-        {
-            var cancelToken = positionTokenSource.Token;
-            var app = (App)Application.Current;
-
-            while (!cancelToken.IsCancellationRequested)
-            {
-                // Update UI
-                await Task.Factory.StartNew(() =>
-                {
-                    if (Track == null)
-                    {
-                        sliderPosition.Value = 0;
-                        sliderPosition.Maximum = 1;
-                        textPosition.Text = "00:00";
-                        textPositionRemaining.Text = "00:00";
-                    }
-                    else
-                    {
-                        var position = PlaybackManager.GetInstance().Position;
-                        var duration = Track.Duration;
-                        var remaining = duration - position;
-
-                        sliderPosition.Value = position;
-                        sliderPosition.Maximum = duration;
-
-                        int positionMinute = (int)Math.Floor(position / 60.0);
-                        int positionSecond = (int)(position - positionMinute * 60.0);
-                        textPosition.Text = positionMinute.ToString().PadLeft(2, '0') + ":" + positionSecond.ToString().PadLeft(2, '0');
-
-                        int remainingMinute = (int)Math.Floor(remaining / 60.0);
-                        int remainingSecond = (int)(remaining - remainingMinute * 60.0);
-                        textPositionRemaining.Text = remainingMinute.ToString().PadLeft(2, '0') + ":" + remainingSecond.ToString().PadLeft(2, '0');
-                    }
-
-                }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
-
-                // wait a while. cease our cpu
-                await Task.Delay(100);
-            }
-        }
-
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             var playbackControl = PlaybackManager.GetInstance();
             playbackControl.StartPlaying += PlaybackControl_StartPlaying;
+            playbackControl.PlaybackTick += PlaybackControl_PlaybackTick;
 
             var upcomings = UpcomingManager.GetInstance();
             upcomings.TrackChanged += Upcomings_TrackChanged;
@@ -138,8 +93,6 @@ namespace PlexFlux.UI.Component
 
             Track = playbackControl.Track;
             LoadArtwork();
-
-            Task.Factory.StartNew(UpdatePlaybackPosition, positionTokenSource.Token);
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -150,8 +103,41 @@ namespace PlexFlux.UI.Component
             var upcomings = UpcomingManager.GetInstance();
             upcomings.TrackChanged -= Upcomings_TrackChanged;
 
-            positionTokenSource.Cancel();
             artworkResizeTokenSource.Cancel();
+        }
+
+        private void PlaybackControl_PlaybackTick(object sender, EventArgs e)
+        {
+            var app = (App)Application.Current;
+
+            Task.Factory.StartNew(() =>
+            {
+                if (Track == null)
+                {
+                    sliderPosition.Value = 0;
+                    sliderPosition.Maximum = 1;
+                    textPosition.Text = "00:00";
+                    textPositionRemaining.Text = "00:00";
+                }
+                else
+                {
+                    var position = PlaybackManager.GetInstance().Position;
+                    var duration = Track.Duration;
+                    var remaining = duration - position;
+
+                    sliderPosition.Value = position;
+                    sliderPosition.Maximum = duration;
+
+                    int positionMinute = (int)Math.Floor(position / 60.0);
+                    int positionSecond = (int)(position - positionMinute * 60.0);
+                    textPosition.Text = positionMinute.ToString().PadLeft(2, '0') + ":" + positionSecond.ToString().PadLeft(2, '0');
+
+                    int remainingMinute = (int)Math.Floor(remaining / 60.0);
+                    int remainingSecond = (int)(remaining - remainingMinute * 60.0);
+                    textPositionRemaining.Text = remainingMinute.ToString().PadLeft(2, '0') + ":" + remainingSecond.ToString().PadLeft(2, '0');
+                }
+
+            }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }
 
         private void PlaybackControl_StartPlaying(object sender, EventArgs e)

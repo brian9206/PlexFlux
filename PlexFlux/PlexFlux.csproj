@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>PlexFlux</RootNamespace>
     <AssemblyName>PlexFlux</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
+    <Compile Include="IPCManager.cs" />
     <Compile Include="ObservableCollectionExtension.cs" />
     <Compile Include="PlaybackManager.cs" />
     <Compile Include="PlayQueueManager.cs" />
@@ -227,6 +228,10 @@
     <Resource Include="Assets\PlexFlux.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PlexFlux.IPC\PlexFlux.IPC.csproj">
+      <Project>{8c9f99b9-8c52-426d-b86d-505764f400d7}</Project>
+      <Name>PlexFlux.IPC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PlexLib\PlexLib.csproj">
       <Project>{b1bbe601-dfba-4495-acd6-4b7bfe08bd2a}</Project>
       <Name>PlexLib</Name>

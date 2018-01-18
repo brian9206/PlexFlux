@@ -93,7 +93,16 @@ namespace PlexLib
 
                 // abort all connections
                 foreach (var request in requests)
-                    request.Abort();
+                {
+                    try
+                    {
+                        request.Abort();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                    
             }
             else
             {

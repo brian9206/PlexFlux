@@ -39,6 +39,7 @@ namespace PlexFlux
         public event EventHandler VolumeChanged;
         public event EventHandler ShuffleChanged;
         public event EventHandler RepeatChanged;
+        public event EventHandler PlaybackTick;
 
         private EventWaitHandle initEvent;
 
@@ -141,10 +142,17 @@ namespace PlexFlux
             Track = null;
 
             // restore config
-            var app = (App)Application.Current;
-            Volume = app.config.Volume;
-            IsShuffle = app.config.IsShuffle;
-            IsRepeat = app.config.IsRepeat;
+            try
+            {
+                var app = (App)Application.Current;
+                Volume = app.config.Volume;
+                IsShuffle = app.config.IsShuffle;
+                IsRepeat = app.config.IsRepeat;
+            }
+            catch (InvalidCastException)
+            {
+                // probably in design mode
+            }
         }
 
         private async Task PlaybackTask()
@@ -184,6 +192,9 @@ namespace PlexFlux
             // stop after playback is complete
             while (waveOut != null && waveOut.PlaybackState != PlaybackState.Stopped)
             {
+                // tick
+                PlaybackTick?.Invoke(this, new EventArgs());
+
                 if (sourceProviderFactory.Error || Position >= Track.Duration)
                 {
                     waveOut.Stop();
@@ -192,7 +203,7 @@ namespace PlexFlux
                     break;
                 }
                     
-                await Task.Delay(500);
+                await Task.Delay(250);
             }
         }
 

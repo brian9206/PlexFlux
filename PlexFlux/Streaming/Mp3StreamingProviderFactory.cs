@@ -44,7 +44,7 @@ namespace PlexFlux.Streaming
             if (userAgent != null)
                 request.UserAgent = userAgent;
 
-            Task.Factory.StartNew(() =>
+            new Thread(new ThreadStart(() =>
             {
                 int retried = 0;
 
@@ -126,7 +126,7 @@ namespace PlexFlux.Streaming
 
                 if (decompressor != null)
                     decompressor.Dispose();
-            });
+            })).Start();
         }
 
         public Task<IWaveProvider> GetWaveProvider()

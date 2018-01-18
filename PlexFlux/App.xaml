@@ -11,7 +11,5 @@
                 <ResourceDictionary Source="UI/Style/Sidebar.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
-        
     </Application.Resources>
 </Application>

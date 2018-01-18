@@ -1,0 +1,3 @@
+[submodule "CSDeskBand"]
+	path = CSDeskBand
+	url = git@github.com:brian9206/CSDeskBand.git
