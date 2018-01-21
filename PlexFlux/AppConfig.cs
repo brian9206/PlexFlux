@@ -9,6 +9,12 @@ namespace PlexFlux
 {
     public class AppConfig
     {
+        public bool AllowMinimize;
+
+        public string OutputDeviceID;
+        public bool IsExclusive;
+        public int TranscodeBitrate;
+
         public string ClientIdentifier;
         public string AuthenticationToken;
         public string ServerMachineIdentifier;
@@ -20,8 +26,16 @@ namespace PlexFlux
         public int WindowSizeW, WindowSizeH;
         public int WindowPosX, WindowPosY;
 
+        public string LibraryDefaultCategory;
+
         public AppConfig()
         {
+            AllowMinimize = false;
+
+            OutputDeviceID = null;
+            IsExclusive = false;
+            TranscodeBitrate = -1;
+
             ClientIdentifier = PlexDeviceInfo.GenerateClientIdentifier();
             AuthenticationToken = string.Empty;
             ServerMachineIdentifier = string.Empty;
@@ -32,6 +46,8 @@ namespace PlexFlux
 
             WindowSizeW = WindowSizeH = int.MinValue;
             WindowPosX = WindowPosY = int.MinValue;
+
+            LibraryDefaultCategory = "Artists";
         }
 
         #region "Save / Load"

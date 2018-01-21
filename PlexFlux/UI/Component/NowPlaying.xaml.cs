@@ -17,6 +17,7 @@ using System.Threading;
 using PlexLib;
 using System.Windows.Media.Animation;
 using GongSolutions.Wpf.DragDrop;
+using System.ComponentModel;
 
 namespace PlexFlux.UI.Component
 {
@@ -55,6 +56,33 @@ namespace PlexFlux.UI.Component
             artworkResizeTokenSource = new CancellationTokenSource();
         }
 
+        #region "IDropTarget implementation"
+        void IDropTarget.DragOver(IDropInfo dropInfo)
+        {
+            PlexTrack sourceItem = dropInfo.Data as PlexTrack;
+            PlexTrack targetItem = dropInfo.TargetItem as PlexTrack;
+
+            if (sourceItem != null && targetItem != null && dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
+            {
+                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+                dropInfo.Effects = DragDropEffects.Move;
+            }
+        }
+
+        void IDropTarget.Drop(IDropInfo dropInfo)
+        {
+            var source = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.DragInfo.VisualSourceItem, 0);
+            int sourceIdx = ItemsControlHelper.FindIndexByItemChild(panelTracks, source);
+            int targetIdx = dropInfo.InsertIndex;
+
+            if (sourceIdx == targetIdx || sourceIdx == -1 || targetIdx == -1)
+                return;
+
+            var upcomings = UpcomingManager.GetInstance();
+            upcomings.Rearrange(sourceIdx, targetIdx);
+        }
+        #endregion
+
         private void LoadArtwork()
         {
             if (Track == null || Track.Thumb == null)
@@ -83,6 +111,9 @@ namespace PlexFlux.UI.Component
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            if (DesignerProperties.GetIsInDesignMode(this))
+                return;
+
             var playbackControl = PlaybackManager.GetInstance();
             playbackControl.StartPlaying += PlaybackControl_StartPlaying;
             playbackControl.PlaybackTick += PlaybackControl_PlaybackTick;
@@ -104,6 +135,30 @@ namespace PlexFlux.UI.Component
             upcomings.TrackChanged -= Upcomings_TrackChanged;
 
             artworkResizeTokenSource.Cancel();
+        }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (imageArtwork.Source == null)
+                return;
+
+            artworkResizeTokenSource.Cancel();
+            artworkResizeTokenSource = new CancellationTokenSource();
+
+            Task.Factory.StartNew(() =>
+            {
+                var cancelToken = artworkResizeTokenSource.Token;
+
+                Thread.Sleep(500);
+
+                if (cancelToken.IsCancellationRequested)
+                    return;
+
+                // reload artwork in UI thread
+                var app = (App)Application.Current;
+                Task.Factory.StartNew(LoadArtwork, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+
+            }, artworkResizeTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         private void PlaybackControl_PlaybackTick(object sender, EventArgs e)
@@ -167,30 +222,6 @@ namespace PlexFlux.UI.Component
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }
 
-        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (imageArtwork.Source == null)
-                return;
-
-            artworkResizeTokenSource.Cancel();
-            artworkResizeTokenSource = new CancellationTokenSource();
-
-            Task.Factory.StartNew(() =>
-            {
-                var cancelToken = artworkResizeTokenSource.Token;
-
-                Thread.Sleep(500);
-
-                if (cancelToken.IsCancellationRequested)
-                    return;
-
-                // reload artwork in UI thread
-                var app = (App)Application.Current;
-                Task.Factory.StartNew(LoadArtwork, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
-
-            }, artworkResizeTokenSource.Token);
-        }
-
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             ScrollViewer scv = (ScrollViewer)sender;
@@ -200,19 +231,9 @@ namespace PlexFlux.UI.Component
 
         private void TrackButton_DeleteClick(object sender, RoutedEventArgs e)
         {
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, sender as DependencyObject);
+            if (index == -1)
+                return;
 
             var upcomings = UpcomingManager.GetInstance();
             upcomings.Remove(index);
@@ -226,19 +247,9 @@ namespace PlexFlux.UI.Component
 
         private void TrackButton_Click(object sender, RoutedEventArgs e)
         {
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, sender as DependencyObject);
+            if (index == -1)
+                return;
 
             var upcomings = UpcomingManager.GetInstance();
             var track = upcomings.Remove(index);
@@ -251,48 +262,6 @@ namespace PlexFlux.UI.Component
         {
             var button = (Component.TrackButton)((ContextMenu)((MenuItem)e.Source).Parent).PlacementTarget;
             TrackButton_Click(button, e);
-        }
-
-        void IDropTarget.DragOver(IDropInfo dropInfo)
-        {
-            PlexTrack sourceItem = dropInfo.Data as PlexTrack;
-            PlexTrack targetItem = dropInfo.TargetItem as PlexTrack;
-
-            if (sourceItem != null && targetItem != null && dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
-            {
-                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
-                dropInfo.Effects = DragDropEffects.Move;
-            }
-        }
-
-        void IDropTarget.Drop(IDropInfo dropInfo)
-        {
-            var source = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.DragInfo.VisualSourceItem, 0);
-            var target = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.VisualTargetItem, 0);
-
-            int sourceIdx = -1;
-            int targetIdx = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (source == item)
-                    sourceIdx = i;
-
-                if (target == item)
-                    targetIdx = i;
-
-                if (sourceIdx >= 0 && targetIdx >= 0)
-                    break;
-            }
-
-            if (sourceIdx < 0 && targetIdx < 0)
-                return;
-
-            var upcomings = UpcomingManager.GetInstance();
-            upcomings.Rearrange(sourceIdx, targetIdx);
         }
     }
 }

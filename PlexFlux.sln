@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlexFlux.DeskBand", "PlexFl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlexFlux.IPC", "PlexFlux.IPC\PlexFlux.IPC.csproj", "{8C9F99B9-8C52-426D-B86D-505764F400D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlexFlux.DeskBand.Installer", "PlexFlux.DeskBand.Installer\PlexFlux.DeskBand.Installer.csproj", "{F8A058C6-387A-46EB-9DEB-5B2374C627A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlexFlux.DeskBand.Installer64", "PlexFlux.DeskBand.Installer64\PlexFlux.DeskBand.Installer64.csproj", "{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,30 @@ Global
 		{8C9F99B9-8C52-426D-B86D-505764F400D7}.Release|x64.Build.0 = Release|Any CPU
 		{8C9F99B9-8C52-426D-B86D-505764F400D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{8C9F99B9-8C52-426D-B86D-505764F400D7}.Release|x86.Build.0 = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|x64.Build.0 = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{F8A058C6-387A-46EB-9DEB-5B2374C627A5}.Release|x86.Build.0 = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|x64.Build.0 = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|x64.ActiveCfg = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|x64.Build.0 = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAB83DA2-8250-493C-A04A-2A837EA7BFB9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

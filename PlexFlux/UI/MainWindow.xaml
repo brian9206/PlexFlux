@@ -10,7 +10,7 @@
         Style="{StaticResource PlexFluxWindow}"
         Width="900" Height="600" WindowStartupLocation="CenterScreen"
         MinWidth="600" MinHeight="400" DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Loaded="Window_Loaded" Closed="Window_Closed" Closing="Window_Closing" MouseDown="Window_MouseDown" KeyDown="Window_KeyDown">
+        Loaded="Window_Loaded" Closed="Window_Closed" Closing="Window_Closing" MouseDown="Window_MouseDown" KeyDown="Window_KeyDown" StateChanged="Window_StateChanged">
 
     <Window.Resources>
         <BitmapImage x:Key="PlayImage" UriSource="../Assets/taskbar thumb/play.png" />
@@ -31,30 +31,30 @@
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfoCollection>
                     <ThumbButtonInfo
+                        x:Name="thumbButtonPrevious"
                         DismissWhenClicked="False"
-                        Command="MediaCommands.PreviousTrack"
-                        CommandTarget="{Binding ElementName=buttonPreviousTrack}"
                         Description="Previous"
-                        ImageSource="{StaticResource ResourceKey=PreviousTrackImage}" />
+                        ImageSource="{StaticResource ResourceKey=PreviousTrackImage}"
+                        Click="ThumbButtonInfo_Click" />
                     <ThumbButtonInfo
+                        x:Name="thumbButtonPlay"
                         DismissWhenClicked="False"
-                        Command="MediaCommands.Play"
-                        CommandTarget="{Binding ElementName=buttonPlay}"
                         Description="Play"
-                        ImageSource="{StaticResource ResourceKey=PlayImage}" />
+                        ImageSource="{StaticResource ResourceKey=PlayImage}"
+                        Click="ThumbButtonInfo_Click" />
                     <ThumbButtonInfo
+                        x:Name="thumbButtonPause"
                         DismissWhenClicked="False"
-                        Command="MediaCommands.Pause"
-                        CommandTarget="{Binding ElementName=buttonPause}"
                         Description="Pause"
                         ImageSource="{StaticResource ResourceKey=PauseImage}" 
-                        Visibility="Collapsed" />
+                        Visibility="Collapsed"
+                        Click="ThumbButtonInfo_Click" />
                     <ThumbButtonInfo
+                        x:Name="thumbButtonNext"
                         DismissWhenClicked="False"
-                        Command="MediaCommands.NextTrack"
-                        CommandTarget="{Binding ElementName=buttonNextTrack}"
                         Description="Next"
-                        ImageSource="{StaticResource ResourceKey=NextTrackImage}" />
+                        ImageSource="{StaticResource ResourceKey=NextTrackImage}"
+                        Click="ThumbButtonInfo_Click" />
                 </ThumbButtonInfoCollection>
             </TaskbarItemInfo.ThumbButtonInfos>
         </TaskbarItemInfo>
@@ -80,12 +80,12 @@
                         <MenuItem Header="Switch User" Click="MenuItemSwitchUser_Click" />
                         <MenuItem Header="Switch Server" Click="MenuItemSwitchServer_Click" />
                         <Separator />
-                        <MenuItem Header="Refresh" />
+                        <MenuItem Header="Settings" Click="MenuItemSettings_Click" />
                         <Separator />
-                        <MenuItem Header="Check for updates" />
-                        <MenuItem Header="About PlexFlux..." />
+                        <MenuItem Header="Check for updates" Click="MenuItemCheckUpdates_Click" />
+                        <MenuItem Header="About PlexFlux..." Click="MenuItemAbout_Click" />
                         <Separator />
-                        <MenuItem Header="Quit" />
+                        <MenuItem Header="Quit" Click="MenuItemQuit_Click" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -153,7 +153,7 @@
                         <Label Grid.Column="0" Style="{StaticResource SidebarListHeader}">P L A Y L I S T S</Label>
 
                         <StackPanel Grid.Column="1" Style="{StaticResource SidebarListHeaderButtonPanel}">
-                            <Button ToolTip="Create" Style="{StaticResource SidebarAddTinyButton}" />
+                            <Button ToolTip="Create" Style="{StaticResource SidebarAddTinyButton}" Click="CreatePlaylistButton_Click" />
                             <Button ToolTip="Refresh" Style="{StaticResource SidebarRefreshTinyButton}" Click="RefreshPlaylistButton_Click" />
                         </StackPanel>
                     </Grid>
@@ -190,7 +190,7 @@
                         <Label Grid.Column="0" Style="{StaticResource SidebarListHeader}">L I B R A R I E S</Label>
 
                         <StackPanel Grid.Column="1" Style="{StaticResource SidebarListHeaderButtonPanel}">
-                            <Button ToolTip="Refresh" Style="{StaticResource SidebarRefreshTinyButton}" />
+                            <Button ToolTip="Refresh" Style="{StaticResource SidebarRefreshTinyButton}" Click="RefreshLibraryButton_Click" />
                         </StackPanel>
                     </Grid>
 
@@ -202,7 +202,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <component:LibrarySidebarItem Library="{Binding}" />
+                                <component:LibrarySidebarItem Library="{Binding}" Click="LibrarySidebarItem_Click" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

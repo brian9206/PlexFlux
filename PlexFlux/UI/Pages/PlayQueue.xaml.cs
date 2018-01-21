@@ -3,6 +3,7 @@ using PlexLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -40,8 +41,38 @@ namespace PlexFlux.UI.Pages
             this.contextMenu = contextMenu;
         }
 
+        #region "IDropTarget implementation"
+        void IDropTarget.DragOver(IDropInfo dropInfo)
+        {
+            var sourceItem = dropInfo.Data as PlexTrack;
+            var targetItem = dropInfo.TargetItem as PlexTrack;
+
+            if (sourceItem != null && targetItem != null && dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
+            {
+                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+                dropInfo.Effects = DragDropEffects.Move;
+            }
+        }
+
+        void IDropTarget.Drop(IDropInfo dropInfo)
+        {
+            var source = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.DragInfo.VisualSourceItem, 0);
+            int sourceIdx = ItemsControlHelper.FindIndexByItemChild(panelTracks, source);
+            int targetIdx = dropInfo.InsertIndex;
+
+            if (sourceIdx == targetIdx || sourceIdx == -1 || targetIdx == -1)
+                return;
+
+            var playQueue = PlayQueueManager.GetInstance();
+            playQueue.Rearrange(sourceIdx, targetIdx);
+        }
+        #endregion
+
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            if (DesignerProperties.GetIsInDesignMode(this))
+                return;
+
             var playQueue = PlayQueueManager.GetInstance();
             playQueue.TrackChanged += PlayQueue_TrackChanged;
             playQueue.CurrentChanged += PlayQueue_CurrentChanged;
@@ -68,19 +99,9 @@ namespace PlexFlux.UI.Pages
         {
             var button = (Component.TrackButton)sender;
 
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, button);
+            if (index == -1)
+                return;
 
             skipNextCurrentChanged = true;
 
@@ -93,21 +114,9 @@ namespace PlexFlux.UI.Pages
 
         private void TrackButton_DeleteClick(object sender, RoutedEventArgs e)
         {
-            var button = (Component.TrackButton)sender;
-
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, sender as DependencyObject);
+            if (index == -1)
+                return;
 
             var playQueue = PlayQueueManager.GetInstance();
             playQueue.Remove(index);
@@ -142,48 +151,6 @@ namespace PlexFlux.UI.Pages
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }
 
-        void IDropTarget.DragOver(IDropInfo dropInfo)
-        {
-            PlexTrack sourceItem = dropInfo.Data as PlexTrack;
-            PlexTrack targetItem = dropInfo.TargetItem as PlexTrack;
-
-            if (sourceItem != null && targetItem != null && dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
-            {
-                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
-                dropInfo.Effects = DragDropEffects.Move;
-            }
-        }
-
-        void IDropTarget.Drop(IDropInfo dropInfo)
-        {
-            var source = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.DragInfo.VisualSourceItem, 0);
-            var target = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.VisualTargetItem, 0);
-
-            int sourceIdx = -1;
-            int targetIdx = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (source == item)
-                    sourceIdx = i;
-
-                if (target == item)
-                    targetIdx = i;
-
-                if (sourceIdx >= 0 && targetIdx >= 0)
-                    break;
-            }
-
-            if (sourceIdx < 0 && targetIdx < 0)
-                return;
-
-            var playQueue = PlayQueueManager.GetInstance();
-            playQueue.Rearrange(sourceIdx, targetIdx);
-        }
-
         private void Play_Click(object sender, RoutedEventArgs e)
         {
             var button = (Component.TrackButton)((ContextMenu)((MenuItem)e.Source).Parent).PlacementTarget;
@@ -203,5 +170,6 @@ namespace PlexFlux.UI.Pages
             var button = (Component.TrackButton)((ContextMenu)((MenuItem)e.Source).Parent).PlacementTarget;
             TrackButton_DeleteClick(button, e);
         }
+
     }
 }

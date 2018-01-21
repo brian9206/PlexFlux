@@ -1,0 +1,34 @@
+﻿<Window x:Class="PlexFlux.UI.NewPlaylistWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PlexFlux.UI"
+        mc:Ignorable="d"
+        Title="New Playlist" Style="{StaticResource PlexFluxWindow}"
+        Height="150" Width="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0"
+               Content="Enter a new playlist name"
+               Margin="10,10"
+               VerticalAlignment="Top" />
+
+        <TextBox Grid.Row="0"
+                 x:Name="textName"
+                 Margin="15,35,15,0"
+                 VerticalAlignment="Top" 
+                 MaxLength="100" />
+
+        <Grid Grid.Row="1" Style="{StaticResource GridBar}">
+            <Button Content="OK" IsDefault="True" VerticalAlignment="Center" HorizontalAlignment="Right" Width="80" Height="24" Margin="0,8,90,8" Click="Button_Click"/>
+            <Button Content="Cancel" IsCancel="True" VerticalAlignment="Center" HorizontalAlignment="Right" Width="80" Height="25" Margin="0,0,5,0"/>
+        </Grid>
+    </Grid>
+</Window>

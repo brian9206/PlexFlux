@@ -1,0 +1,135 @@
+﻿<Page x:Class="PlexFlux.UI.Pages.BrowseArtist"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PlexFlux.UI.Pages"
+      xmlns:component="clr-namespace:PlexFlux.UI.Component"
+      mc:Ignorable="d" 
+      Style="{StaticResource PlexFluxPage}" 
+      DataContext="{Binding RelativeSource={RelativeSource Self}}"
+      d:DesignHeight="400" d:DesignWidth="600"
+      Loaded="Page_Loaded" SizeChanged="Page_SizeChanged">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Style="{StaticResource GridBar}" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,5,0">
+                <StackPanel.Resources>
+                    <ResourceDictionary Source="../Style/PlaybackControl.xaml" />
+                </StackPanel.Resources>
+
+                <Button ToolTip="Back to library" Click="Back_Click">
+                    <Viewbox Stretch="Uniform" Margin="12">
+                        <Canvas Width="512" Height="512">
+                            <Polygon Points="352,128.4 319.7,96 160,256 160,256 160,256 319.7,416 352,383.6 224.7,256" 
+                                     Fill="White">
+                                <Polygon.RenderTransform>
+                                    <TranslateTransform X="-50" />
+                                </Polygon.RenderTransform>
+                            </Polygon>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">
+                <StackPanel.Resources>
+                    <ResourceDictionary Source="../Style/PlaybackControl.xaml" />
+                </StackPanel.Resources>
+
+                <component:SearchBar x:Name="textFilter" 
+                                 HorizontalAlignment="Right"
+                                 Width="225" 
+                                 Margin="0,0,10,0"
+                                 TextChanged="textFilter_TextChanged"/>
+
+                <Button x:Name="buttonMore" Click="buttonMore_Click">
+                    <Viewbox Stretch="Fill" Margin="12">
+                        <Canvas Width="24" Height="24">
+                            <Ellipse Fill="White" Width="4" Height="4" Canvas.Left="10" Canvas.Top="3" />
+                            <Ellipse Fill="White" Width="4" Height="4" Canvas.Left="10" Canvas.Top="10" />
+                            <Ellipse Fill="White" Width="4" Height="4" Canvas.Left="10" Canvas.Top="17" />
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="0" DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition MinHeight="150" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="panelArtwork" Grid.Row="0" Background="#FF000000" Margin="10">
+                <Image x:Name="imageArtwork" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Border>
+
+            <DockPanel Grid.Row="1" Margin="10,10,10,10">
+                <TextBlock DockPanel.Dock="Top"
+                           TextWrapping="Wrap" 
+                           Foreground="#CCFFFFFF" 
+                           TextAlignment="Center" 
+                           TextTrimming="CharacterEllipsis"
+                           LineHeight="20"
+                           LineStackingStrategy="BlockLineHeight"
+                           FontSize="18"
+                           MaxHeight="40"
+                           Text="{Binding Path=Artist.Title}"
+                           ToolTip="{Binding Path=Artist.Title}" />
+
+                <ScrollViewer Margin="0,5,0,0" VerticalScrollBarVisibility="Auto">
+                    <TextBlock
+                           TextWrapping="Wrap" 
+                           Foreground="#66FFFFFF" 
+                           TextAlignment="Left" 
+                           FontSize="12"
+                           Text="{Binding Path=Artist.Summary}" />
+                </ScrollViewer>
+                
+                
+            </DockPanel>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Path=Albums}"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Padding="5,10,10,10"
+                      VirtualizingPanel.IsContainerVirtualizable="True"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Standard">
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ScrollViewer Padding="{TemplateBinding Padding}" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <component:MediaObjectItem MediaObject="{Binding}" 
+                                               Margin="0,0,0,5"
+                                               Click="MediaObjectItem_Click" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Viewbox x:Name="panelLoading" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Height="40" Grid.Row="1" Grid.Column="1">
+            <component:Spinner Width="24" Height="24" />
+        </Viewbox>
+    </Grid>
+</Page>

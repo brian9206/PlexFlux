@@ -1,26 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Reflection;
 using System.Net;
-using System.Xml;
+using System.Threading;
+using NAudio.CoreAudioApi;
 using PlexLib;
 using PlexFlux.UI;
-using PlexFlux.IPC;
-using System.Windows.Input;
-using System.Threading;
+using Octokit;
 
 namespace PlexFlux
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
+        private static readonly Mutex appMutex = new Mutex(true, "{14B7E89A-58A5-48EE-99BD-BAB4CF5C20AF}");
+
         public AppConfig config;
         public PlexDeviceInfo deviceInfo;
 
@@ -32,6 +29,21 @@ namespace PlexFlux
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            if (!appMutex.WaitOne(TimeSpan.Zero, true))
+            {
+                MessageBox.Show("PlexFlux is already running.\nOnly one instance at a time.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                Environment.Exit(128);
+                return;
+            }
+
+            // As we are using WASAPI, we are not compatible with Vista below. (no point to support shit legacy OS)
+            if (Environment.OSVersion.Version.Major < 6)    // vista is 6.0
+            {
+                MessageBox.Show("PlexFlux is not compatible with your current version of Windows.\nWindows Vista or later is required.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(128);
+                return;
+            }
+
 #if DEBUG
             while (!System.Diagnostics.Debugger.IsAttached)
             {
@@ -128,5 +140,38 @@ namespace PlexFlux
             plexClient = new PlexClient(plexConnection);
         }
 
+        public MMDevice GetDeviceByID(string deviceID)
+        {
+            var enumerator = new MMDeviceEnumerator();
+
+            foreach (var device in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+            {
+                if (device.ID == deviceID)
+                    return device;
+            }
+
+            return enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+        }
+
+        public async Task<Version> GetLatestVersion()
+        {
+            var github = new GitHubClient(new ProductHeaderValue("PlexFlux"));
+
+            Version latestVersion = null;
+            Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            try
+            {
+                var release = await github.Repository.Release.GetLatest("brian9206", "PlexFlux");
+                latestVersion = Version.Parse(release.TagName);
+            }
+            catch
+            {
+                // internet connection issue or no releases
+                return currentVersion;
+            }
+
+            return latestVersion;
+        }
     }
 }

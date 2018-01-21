@@ -1,0 +1,144 @@
+﻿<Window x:Class="PlexFlux.UI.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PlexFlux.UI"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="Settings" Style="{StaticResource PlexFluxWindow}" DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Width="320" Height="450" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        MinWidth="320" MinHeight="380" Loaded="Window_Loaded">
+    <Window.Resources>
+        <ResourceDictionary Source="Style/Settings.xaml" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" Padding="10" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- General -->
+                <StackPanel>
+                    <Label Content="General" Style="{StaticResource Heading}" />
+                    
+                    <CheckBox x:Name="checkLaunchStartup" 
+                              Content="Launch at system startup" 
+                              HorizontalAlignment="Left" Margin="0,0,0,5" />
+                    
+                    <CheckBox x:Name="checkMinimize" 
+                              Content="Allow to minimize to system tray" 
+                              HorizontalAlignment="Left" />
+                </StackPanel>
+                
+                <!-- Output -->
+                <StackPanel Margin="0,25,0,0">
+                    <Label Content="Output" Style="{StaticResource Heading}" />
+
+                    <DockPanel>
+                        <Label Content="Device" Width="60" Margin="0,0,10,0" />
+                        <ComboBox x:Name="comboDevice" VerticalAlignment="Center" SelectionChanged="Output_SelectionChanged">
+                            <ComboBoxItem Tag="{x:Null}">(System Default)</ComboBoxItem>
+                        </ComboBox>
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Content="Mode" Width="60" Margin="0,0,10,0" />
+                        <ComboBox x:Name="comboOutputMode" VerticalAlignment="Center" SelectionChanged="Output_SelectionChanged">
+                            <ComboBoxItem>Shared</ComboBoxItem>
+                            <ComboBoxItem>Exclusive</ComboBoxItem>
+                        </ComboBox>
+                    </DockPanel>
+                </StackPanel>
+
+                <!-- Transcode -->
+                <StackPanel Margin="0,25,0,0">
+                    <Label Content="Transcode" Style="{StaticResource Heading}" />
+
+                    <DockPanel>
+                        <Label Content="Bitrate" Width="60" Margin="0,0,10,0" />
+                        <ComboBox x:Name="comboBitrate" VerticalAlignment="Center" SelectionChanged="Output_SelectionChanged">
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>-1</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                Prefer no transcoding
+                            </ComboBoxItem>
+                            
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>320</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                320kbps
+                            </ComboBoxItem>
+
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>256</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                256kbps
+                            </ComboBoxItem>
+
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>192</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                192kbps
+                            </ComboBoxItem>
+
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>128</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                128kbps
+                            </ComboBoxItem>
+
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>96</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                96kbps
+                            </ComboBoxItem>
+
+                            <ComboBoxItem>
+                                <ComboBoxItem.Tag>
+                                    <sys:Int32>64</sys:Int32>
+                                </ComboBoxItem.Tag>
+                                64kbps
+                            </ComboBoxItem>
+                        </ComboBox>
+                    </DockPanel>
+                </StackPanel>
+
+                <!-- DeskBand -->
+                <StackPanel Margin="0,25,0,0">
+                    <Label Content="DeskBand Controls" Style="{StaticResource Heading}" />
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="buttonInstallDeskBand" 
+                                Margin="0,0,5,0" 
+                                Width="80" Height="25" 
+                                Content="Install"
+                                Click="InstallDeskBand_Click"/>
+                        
+                        <Button x:Name="buttonUninstallDeskBand" 
+                                Margin="0,0,5,0" 
+                                Width="80" Height="25" 
+                                Content="Uninstall"
+                                Click="UninstallDeskBand_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Grid.Row="1" Style="{StaticResource GridBar}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
+                <Button Content="OK" Width="80" Height="25" Margin="0,0,5,0" IsDefault="True" Click="OK_Click" />
+                <Button Content="Cancel" Width="80" Height="25" IsCancel="True" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

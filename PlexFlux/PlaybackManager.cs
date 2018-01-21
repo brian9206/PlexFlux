@@ -1,9 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using NAudio.Wave;
+using NAudio.CoreAudioApi;
 using PlexLib;
 using PlexFlux.Streaming;
 
@@ -159,7 +159,18 @@ namespace PlexFlux
         {
             var app = (App)Application.Current;
 
-            var url = app.plexClient.GetMusicTranscodeUrl(Track, 320); // TODO: bitrate config
+            // make transcode URL
+            var url = app.plexClient.GetMusicTranscodeUrl(Track, app.config.TranscodeBitrate < 0 ? 320 : app.config.TranscodeBitrate);
+
+            if (app.config.TranscodeBitrate < 0)
+            {
+                // try to find mp3 so no transcode is needed if found
+                var media = Track.FindByFormat("mp3");
+
+                if (media != null)
+                    url = app.plexConnection.BuildRequestUrl(media.Url);
+            }
+
             var factory = new Mp3StreamingProviderFactory(url, app.plexConnection.DeviceInfo.UserAgent);
             sourceProviderFactory = factory;
 
@@ -222,9 +233,10 @@ namespace PlexFlux
             if (sourceProviderFactory != null)
                 sourceProviderFactory.Dispose();
 
+            var app = (App)Application.Current;
+
             // create new session
-            //TODO: config to switch between waveout and wasapiout
-            waveOut = new WasapiOut();
+            waveOut = new WasapiOut(app.GetDeviceByID(app.config.OutputDeviceID), app.config.IsExclusive ? AudioClientShareMode.Exclusive : AudioClientShareMode.Shared, false, 100);
             waveOut.PlaybackStopped += WaveOut_PlaybackStopped;
         }
 

@@ -95,21 +95,38 @@ namespace PlexFlux
             playedTracksIndex = new LinkedList<int>();
         }
 
-        public PlexTrack FromTracks(PlexTrack[] tracks, int current = -1)
+        public PlexTrack FromTracks(System.ComponentModel.ICollectionView tracks, int current = -1)
         {
             if (current < 0)
-            {
-                // TODO: check shuffle
                 current = 0;
-            }
 
             lock (tracks)
             {
                 this.tracks.Clear();
 
                 foreach (var track in tracks)
-                    this.tracks.Add(track);
-                    
+                    this.tracks.Add(track as PlexTrack);
+            }
+
+            ResetPlayedIndexes();
+            var currentTrack = Play(current);
+
+            TrackChanged?.Invoke(this, new EventArgs());
+
+            return currentTrack;
+        }
+
+        public PlexTrack FromTracks(PlexTrack[] tracks, int current = -1)
+        {
+            if (current < 0)
+                current = 0;
+
+            lock (tracks)
+            {
+                this.tracks.Clear();
+
+                foreach (var track in tracks)
+                    this.tracks.Add(track); 
             }
 
             ResetPlayedIndexes();

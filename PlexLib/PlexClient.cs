@@ -50,7 +50,8 @@ namespace PlexLib
 
             XmlDocument response = await connection.RequestXml("/library/sections/" + library.Key + "/all", new NameValueCollection()
             {
-                { "type", "8" }
+                { "type", "8" },
+                { "sort", "titleSort" }
             });
             XmlNode mediaContainer = response.SelectSingleNode("/MediaContainer");
 
@@ -79,7 +80,8 @@ namespace PlexLib
 
             XmlDocument response = await connection.RequestXml("/library/sections/" + library.Key + "/all", new NameValueCollection()
             {
-                { "type", "9" }
+                { "type", "9" },
+                { "sort", "titleSort" }
             });
             XmlNode mediaContainer = response.SelectSingleNode("/MediaContainer");
 
@@ -108,7 +110,8 @@ namespace PlexLib
 
             XmlDocument response = await connection.RequestXml("/library/sections/" + library.Key + "/all", new NameValueCollection()
             {
-                { "type", "10" }
+                { "type", "10" },
+                { "sort", "titleSort" }
             });
             XmlNode mediaContainer = response.SelectSingleNode("/MediaContainer");
 
@@ -161,7 +164,7 @@ namespace PlexLib
             return new PlexPlaylist(mediaContainer.SelectNodes("Playlist")[0]);
         }
 
-        public async Task<PlexPlaylist> AddItemToPlaylist(PlexPlaylist playlist, PlexTrack item)
+        public async Task<PlexPlaylist> AddItemToPlaylist(PlexPlaylist playlist, IPlexMediaObject item)
         {
             string uri = "library://";
 
@@ -170,7 +173,9 @@ namespace PlexLib
             if (library == null)
                 throw new FileNotFoundException("Could not lookup library.");
 
-            uri += library.UUID + "/item/" + HttpUtility.UrlEncode(item.MetadataUrl);
+            var metadataUrl = item.MetadataUrl;
+
+            uri += library.UUID + "/item/" + HttpUtility.UrlEncode(metadataUrl.EndsWith("/children") ? metadataUrl.Substring(0, metadataUrl.Length - "/children".Length) : metadataUrl);
 
 
             XmlDocument response = await connection.RequestXml(playlist.MetadataUrl, new NameValueCollection()
@@ -206,6 +211,24 @@ namespace PlexLib
                 throw new FileNotFoundException("No playlist has been created.");
 
             return new PlexPlaylist(mediaContainer.SelectNodes("Playlist")[0]);
+        }
+
+        public async Task MoveTrackInPlaylist(PlexPlaylist playlist, PlexTrack track, PlexTrack after = null)
+        {
+            if (track.PlaylistItemID < 0 || (after != null && after.PlaylistItemID < 0))
+                throw new InvalidOperationException("Track provided must be fetched by GetTracks(PlexPlaylist playlist)");
+
+            NameValueCollection nvc = null;
+
+            if (after != null)
+            {
+                nvc = new NameValueCollection()
+                {
+                    { "after", after.PlaylistItemID.ToString() }
+                };
+            }
+
+            await connection.RequestServer(playlist.MetadataUrl + "/" + track.PlaylistItemID + "/move", nvc, "PUT");
         }
 
         public Uri GetPhotoTranscodeUrl(string url, int width, int height, bool minSize = true)

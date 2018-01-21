@@ -28,6 +28,9 @@ namespace PlexFlux.UI.Component
         public static readonly DependencyProperty DoNotUpdatePlayingProperty =
             DependencyProperty.Register("DoNotUpdatePlaying", typeof(bool), typeof(TrackButton));
 
+        public static readonly DependencyProperty DeleteButtonVisibilityProperty =
+            DependencyProperty.Register("DeleteButtonVisibility", typeof(Visibility), typeof(TrackButton), new PropertyMetadata(Visibility.Visible));
+
         public PlexTrack Track
         {
             get
@@ -52,6 +55,17 @@ namespace PlexFlux.UI.Component
             }
         }
 
+        public Visibility DeleteButtonVisibility
+        {
+            get
+            {
+                return (Visibility)GetValue(DeleteButtonVisibilityProperty);
+            }
+            set
+            {
+                SetValue(DeleteButtonVisibilityProperty, value);
+            }
+        }
 
         public bool IsPlaying
         {

@@ -16,13 +16,15 @@ using System.Windows.Shapes;
 using System.IO;
 using PlexLib;
 using System.Net;
+using System.ComponentModel;
+using GongSolutions.Wpf.DragDrop;
 
 namespace PlexFlux.UI.Pages
 {
     /// <summary>
     /// Interaction logic for BrowsePlaylist.xaml
     /// </summary>
-    public partial class BrowsePlaylist : Page
+    public partial class BrowsePlaylist : Page, IDropTarget
     {
         public ObservableCollection<PlexTrack> Tracks
         {
@@ -59,8 +61,64 @@ namespace PlexFlux.UI.Pages
             InitializeComponent();
         }
 
+        #region "IDropTarget implementation"
+        void IDropTarget.DragOver(IDropInfo dropInfo)
+        {
+            var sourceItem = dropInfo.Data as PlexTrack;
+            var targetItem = dropInfo.TargetItem as PlexTrack;
+
+            if (sourceItem != null && targetItem != null && dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
+            {
+                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+                dropInfo.Effects = DragDropEffects.Move;
+            }
+        }
+
+        async void IDropTarget.Drop(IDropInfo dropInfo)
+        {
+            var source = (Component.TrackButton)VisualTreeHelper.GetChild(dropInfo.DragInfo.VisualSourceItem, 0);
+            int sourceIdx = ItemsControlHelper.FindIndexByItemChild(panelTracks, source);
+            int targetIdx = dropInfo.InsertIndex - 1;
+
+            // nothing need to work
+            if (sourceIdx == targetIdx)
+                return;
+
+            if (sourceIdx > targetIdx)
+                targetIdx--;
+
+            var sourceItem = dropInfo.Data as PlexTrack;
+            var targetItem = targetIdx == -1 ? null : ((Component.TrackButton)ItemsControlHelper.GetItemChildByIndex(panelTracks, targetIdx)).Track;
+
+            // move it
+            panelTracks.IsEnabled = false;
+
+            var app = (App)Application.Current;
+
+            try
+            {
+                await app.plexClient.MoveTrackInPlaylist(Playlist, sourceItem, targetItem);
+
+                // update UI
+                Tracks.Remove(sourceItem);
+                Tracks.Insert(targetIdx == -1 ? 0 : targetIdx, sourceItem);
+            }
+            catch
+            {
+                MessageBox.Show("Failed to update data in the remote server.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+            finally
+            {
+                panelTracks.IsEnabled = true;
+            }
+        }
+        #endregion
+
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            if (DesignerProperties.GetIsInDesignMode(this))
+                return;
+
             var app = (App)Application.Current;
             var mainWindow = MainWindow.GetInstance();
 
@@ -77,8 +135,6 @@ namespace PlexFlux.UI.Pages
             }
 
             IsLoading = false;
-
-            // TODO: display no track message if tracks.Count = 0
         }
 
         private void buttonMore_Click(object sender, RoutedEventArgs e)
@@ -90,21 +146,9 @@ namespace PlexFlux.UI.Pages
 
         private void TrackButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = (Component.TrackButton)sender;
-
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, sender as DependencyObject);
+            if (index == -1)
+                return;
 
             var playQueue = PlayQueueManager.GetInstance();
             var track = playQueue.FromTracks(Tracks.ToArray(), index);
@@ -119,21 +163,9 @@ namespace PlexFlux.UI.Pages
 
         private async void TrackButton_DeleteClick(object sender, RoutedEventArgs e)
         {
-            var button = (Component.TrackButton)sender;
-
-            var index = -1;
-
-            for (int i = 0; i < panelTracks.Items.Count; i++)
-            {
-                var dependencyObject = panelTracks.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.TrackButton)VisualTreeHelper.GetChild(dependencyObject, 0);
-
-                if (sender == item)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            var index = ItemsControlHelper.FindIndexByItemChild(panelTracks, sender as DependencyObject);
+            if (index == -1)
+                return;
 
             var track = Tracks[index];
 

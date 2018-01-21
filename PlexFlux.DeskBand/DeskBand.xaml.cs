@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +45,9 @@ namespace PlexFlux.DeskBand
 
         public DeskBand()
         {
+            // increase max connection here as we cannot set it in app.config
+            ServicePointManager.DefaultConnectionLimit = 65535;
+
             instance = this;
 
             InitializeComponent();

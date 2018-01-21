@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlexLib
 {
-    public class PlexTrack
+    public class PlexTrack : IPlexMediaObject
     {
         public string MetadataUrl
         {
@@ -25,6 +25,14 @@ namespace PlexLib
         {
             get;
             internal set;
+        }
+
+        public string Summary
+        {
+            get
+            {
+                return Artist.Title;
+            }
         }
 
         // optional

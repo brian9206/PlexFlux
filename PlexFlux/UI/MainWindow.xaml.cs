@@ -1,24 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Net;
-using PlexLib;
 using System.Windows.Media.Animation;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Net;
+using System.Reflection;
+using System.Diagnostics;
+using PlexLib;
+using System.Threading;
 
 namespace PlexFlux.UI
 {
@@ -102,12 +95,21 @@ namespace PlexFlux.UI
             }
         }
 
+        public Frame Frame
+        {
+            get => frame;
+        }
+
+        private SystemTrayIcon systemTrayIcon;
+
         public MainWindow()
         {
             instance = this;
 
             Reset();
             InitializeComponent();
+
+            CommandManager.RequerySuggested += CommandManager_RequerySuggested;
 
             var app = (App)Application.Current;
 
@@ -124,6 +126,50 @@ namespace PlexFlux.UI
                 Width = app.config.WindowSizeW;
                 Height = app.config.WindowSizeH;
             }
+
+            // system tray
+            systemTrayIcon = new SystemTrayIcon();
+            systemTrayIcon.DoubleClick += SystemTrayIcon_DoubleClick;
+
+            // -startup will result in default minimized
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length >= 2 && args[1] == "-startup")
+            {
+                WindowState = WindowState.Minimized;
+                Window_StateChanged(this, new EventArgs());
+            }
+        }
+
+        private void SystemTrayIcon_DoubleClick(object sender, EventArgs e)
+        {
+            RestoreFromSystemTray();
+        }
+
+        private void CommandManager_RequerySuggested(object sender, EventArgs e)
+        {
+            // workaround for background thumb button always disabled issue
+            thumbButtonPlay.IsEnabled = MediaCommands.Play.CanExecute(null, this);
+            thumbButtonPause.IsEnabled = MediaCommands.Pause.CanExecute(null, this);
+            thumbButtonPrevious.IsEnabled = MediaCommands.PreviousTrack.CanExecute(null, this);
+            thumbButtonNext.IsEnabled = MediaCommands.NextTrack.CanExecute(null, this);
+
+            thumbButtonPause.Visibility = thumbButtonPause.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+            thumbButtonPlay.Visibility = (thumbButtonPause.IsEnabled && !thumbButtonPlay.IsEnabled) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void ThumbButtonInfo_Click(object sender, EventArgs e)
+        {
+            if (sender == thumbButtonPlay)
+                MediaCommands.Play.Execute(null, this);
+
+            else if (sender == thumbButtonPause)
+                MediaCommands.Pause.Execute(null, this);
+
+            else if (sender == thumbButtonPrevious)
+                MediaCommands.PreviousTrack.Execute(null, this);
+
+            else if (sender == thumbButtonNext)
+                MediaCommands.NextTrack.Execute(null, this);
         }
 
         public void Reset()
@@ -132,6 +178,16 @@ namespace PlexFlux.UI
             Playlists = new ObservableCollection<PlexPlaylist>();
             Libraries = new ObservableCollection<PlexLibrary>();
             PlaybackManager.GetInstance().Reset();
+        }
+
+        public void RestoreFromSystemTray()
+        {
+            systemTrayIcon.Visible = false;
+
+            Visibility = Visibility.Visible;
+            WindowState = WindowState.Normal;
+
+            SystemCommands.RestoreWindow(this);
         }
 
         public void GoToPlayQueue()
@@ -147,28 +203,38 @@ namespace PlexFlux.UI
             buttonPlayQueue.BeginStoryboard((Storyboard)FindResource("NotifyFlash"));
         }
 
+        public void FlashPlaylist(PlexPlaylist playlist)
+        {
+            for (int i = 0; i < panelPlaylists.Items.Count; i++)
+            {
+                var item = (Component.PlaylistSidebarItem)ItemsControlHelper.GetItemChildByIndex(panelPlaylists, i);
+                
+                if (item.Playlist.MetadataUrl == playlist.MetadataUrl)
+                {
+                    item.BeginStoryboard((Storyboard)FindResource("NotifyFlash"));
+                    break;
+                }
+            }
+        }
+
         private void SelectSidebarItem(object sender)
         {
             buttonPlayQueue.IsEnabled = sender != buttonPlayQueue;
 
             for (int i = 0; i < panelPlaylists.Items.Count; i++)
             {
-                var dependencyObject = panelPlaylists.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.PlaylistSidebarItem)VisualTreeHelper.GetChild(dependencyObject, 0);
-
+                var item = (Component.PlaylistSidebarItem)ItemsControlHelper.GetItemChildByIndex(panelPlaylists, i);
                 item.IsButtonEnabled = sender != item;
             }
 
             for (int i = 0; i < panelLibraries.Items.Count; i++)
             {
-                var dependencyObject = panelLibraries.ItemContainerGenerator.ContainerFromIndex(i);
-                var item = (Component.LibrarySidebarItem)VisualTreeHelper.GetChild(dependencyObject, 0);
-
+                var item = (Component.LibrarySidebarItem)ItemsControlHelper.GetItemChildByIndex(panelLibraries, i);
                 item.IsButtonEnabled = sender != item;
             }
         }
 
-        private async Task Refresh()
+        public async Task Refresh()
         {
             var tasks = new Task[]
             {
@@ -179,7 +245,7 @@ namespace PlexFlux.UI
             await Task.WhenAll(tasks);
         }
 
-        private async Task FetchPlaylists()
+        public async Task FetchPlaylists()
         {
             // do nothing if we are not connected
             if (Server == null)
@@ -198,7 +264,7 @@ namespace PlexFlux.UI
             }
         }
 
-        private async Task FetchLibraries()
+        public async Task FetchLibraries()
         {
             // do nothing if we are not connected
             if (Server == null)
@@ -228,6 +294,8 @@ namespace PlexFlux.UI
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            var app = (App)Application.Current;
+
             var playQueue = PlayQueueManager.GetInstance();
             playQueue.TrackChanged += PlayQueue_TrackChanged;
 
@@ -237,7 +305,6 @@ namespace PlexFlux.UI
             IsLoading = true;
             IsVolumeControlVisible = false;
 
-            var app = (App)Application.Current;
             var servers = await app.GetPlexServers();
             var server = servers.Where(srv => srv.MachineIdentifier == app.config.ServerMachineIdentifier).FirstOrDefault();
 
@@ -250,6 +317,36 @@ namespace PlexFlux.UI
             await Refresh();
 
             IsLoading = false;
+
+            // check update
+            await Task.Factory.StartNew(async () =>
+            {
+                await Task.Delay(10 * 1000);
+
+                // check update
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var latestVersion = await app.GetLatestVersion();
+
+                if (latestVersion.Major > currentVersion.Major ||
+                    latestVersion.Minor > currentVersion.Minor ||
+                    latestVersion.Revision > currentVersion.Revision)
+                {
+                    await Task.Factory.StartNew(() => systemTrayIcon.ShowBalloonTip("New version is available. It is recommended to upgrade."), CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+                }
+            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState != WindowState.Minimized)
+                return;
+
+            var app = (App)Application.Current;
+            if (!app.config.AllowMinimize)
+                return;
+
+            systemTrayIcon.Visible = true;
+            Visibility = Visibility.Hidden;
         }
 
         private void PlayQueue_TrackChanged(object sender, EventArgs e)
@@ -293,6 +390,8 @@ namespace PlexFlux.UI
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            systemTrayIcon.Dispose();
+
             var app = (App)Application.Current;
             app.Shutdown();
         }
@@ -334,6 +433,81 @@ namespace PlexFlux.UI
             }
         }
 
+        private void MenuItemSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SettingsWindow();
+            window.ShowDialog();
+        }
+
+        private async void MenuItemCheckUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            var app = (App)Application.Current;
+            var latestVersion = await app.GetLatestVersion();
+            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            bool update = false;
+
+            if (latestVersion.Major > currentVersion.Major)
+            {
+                var result = MessageBox.Show(
+                    "Latest version: " + latestVersion.ToString() + "\n" +
+                    "Current version: " + currentVersion.ToString() + "\n\n" +
+                    "New major version of PlexFlux is released.\n" +
+                    "Please visit Github project page for more details.\n\n" +
+                    "Do you want to visit release page now?",
+                    "PlexFlux", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                update = result == MessageBoxResult.Yes;
+            }
+
+            else if (latestVersion.Minor > currentVersion.Minor)
+            {
+                var result = MessageBox.Show(
+                    "Latest version: " + latestVersion.ToString() + "\n" +
+                    "Current version: " + currentVersion.ToString() + "\n\n" +
+                    "New minor version of PlexFlux is released.\n" +
+                    "It usually introduce new features and it is recommended to upgrade.\n\n" +
+                    "Do you want to visit release page now?",
+                    "PlexFlux", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                update = result == MessageBoxResult.Yes;
+            }
+
+            else if (latestVersion.Minor > currentVersion.Minor)
+            {
+                var result = MessageBox.Show(
+                    "Latest version: " + latestVersion.ToString() + "\n" +
+                    "Current version: " + currentVersion.ToString() + "\n\n" +
+                    "New revision version of PlexFlux is released.\n" +
+                    "It usually fixes bugs and it is recommended to upgrade.\n\n" +
+                    "Do you want to visit release page now?",
+                    "PlexFlux", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                update = result == MessageBoxResult.Yes;
+            }
+
+            else
+            {
+                MessageBox.Show("PlexFlux is on the latest version.\nNo update is currently available.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (update)
+            {
+                Process.Start("explorer.exe", "https://github.com/brian9206/PlexFlux/releases");
+            }
+        }
+
+        private void MenuItemAbout_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("PlexFlux v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\nCreated by Brian Choi\nGithub: https://github.com/brian9206/PlexFlux", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void MenuItemQuit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
         private void buttonPlayQueue_Click(object sender, RoutedEventArgs e)
         {
             GoToPlayQueue();
@@ -347,12 +521,28 @@ namespace PlexFlux.UI
             FlashPlayQueue();
         }
 
+        private void CreatePlaylistButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new NewPlaylistWindow();
+            window.ShowDialog();
+        }
+
         private async void RefreshPlaylistButton_Click(object sender, RoutedEventArgs e)
         {
             IsLoading = true;
 
             GoToPlayQueue();
             await FetchPlaylists();
+
+            IsLoading = false;
+        }
+
+        private async void RefreshLibraryButton_Click(object sender, RoutedEventArgs e)
+        {
+            IsLoading = true;
+
+            GoToPlayQueue();
+            await FetchLibraries();
 
             IsLoading = false;
         }
@@ -474,6 +664,16 @@ namespace PlexFlux.UI
             }
         }
 
+        private void LibrarySidebarItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (Component.LibrarySidebarItem)sender;
+
+            var page = new Pages.BrowseLibrary(((FrameworkElement)sender).ContextMenu, item.Library);
+            frame.Navigate(page);
+
+            SelectSidebarItem(sender);
+        }
+
         // commands
         private void MediaCommands_Play_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -494,10 +694,15 @@ namespace PlexFlux.UI
             var page = frame.Content;
             var playQueue = PlayQueueManager.GetInstance();
 
-            if (page.GetType() == typeof(Pages.BrowsePlaylist))
+            if (page is Pages.BrowsePlaylist)
             {
                 var browsePlaylist = (Pages.BrowsePlaylist)page;
                 e.CanExecute = playback.PlaybackState != NAudio.Wave.PlaybackState.Playing && !browsePlaylist.IsLoading && browsePlaylist.Tracks.Count > 0;
+            }
+            else if (page is Pages.BrowseAlbum)
+            {
+                var browseAlbum = (Pages.BrowseAlbum)page;
+                e.CanExecute = playback.PlaybackState != NAudio.Wave.PlaybackState.Playing && !browseAlbum.IsLoading && browseAlbum.TracksData.Count > 0;
             }
             else
             {
@@ -513,19 +718,26 @@ namespace PlexFlux.UI
             if (playbackManager.PlaybackState == NAudio.Wave.PlaybackState.Paused)
             {
                 playbackManager.Resume();
+                CommandManager.InvalidateRequerySuggested();
             }
             else if (playbackManager.PlaybackState == NAudio.Wave.PlaybackState.Stopped)
             {
                 var page = frame.Content;
                 var playQueue = PlayQueueManager.GetInstance();
 
-                if (page.GetType() == typeof(Pages.BrowsePlaylist))
+                if (page is Pages.BrowsePlaylist)
                 {
                     var browsePlaylist = (Pages.BrowsePlaylist)page;
                     track = playQueue.FromTracks(browsePlaylist.Tracks.ToArray());
 
-                    var mainWindow = MainWindow.GetInstance();
-                    mainWindow.GoToPlayQueue();
+                    GoToPlayQueue();
+                }
+                else if (page is Pages.BrowseAlbum)
+                {
+                    var browseAlbum = (Pages.BrowseAlbum)page;
+                    track = playQueue.FromTracks(browseAlbum.TracksData.ToArray());
+
+                    GoToPlayQueue();
                 }
                 else
                 {
@@ -537,6 +749,8 @@ namespace PlexFlux.UI
                 return;
 
             playbackManager.Play(track);
+
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void MediaCommands_Pause_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -549,6 +763,8 @@ namespace PlexFlux.UI
         {
             var playback = PlaybackManager.GetInstance();
             playback.Pause();
+
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void MediaCommands_NextTrack_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -569,6 +785,8 @@ namespace PlexFlux.UI
 
             var playback = PlaybackManager.GetInstance();
             playback.Play(track);
+
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void MediaCommands_PreviousTrack_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -584,8 +802,8 @@ namespace PlexFlux.UI
 
             var playback = PlaybackManager.GetInstance();
             playback.Play(track);
+
+            CommandManager.InvalidateRequerySuggested();
         }
-
-
     }
 }

@@ -46,7 +46,10 @@
                           dd:DragDrop.IsDragSource="True" 
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DropScrollingMode="VerticalOnly"
-                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}">
+                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
+                          VirtualizingPanel.IsContainerVirtualizable="True"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Standard">
                 <ItemsControl.Template>
                     <ControlTemplate>
                         <ScrollViewer Padding="{TemplateBinding Padding}" CanContentScroll="True">
@@ -56,11 +59,7 @@
                 </ItemsControl.Template>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel VirtualizingPanel.IsContainerVirtualizable="True"
-                                        VirtualizingPanel.IsVirtualizing="True"
-                                        VirtualizingPanel.VirtualizationMode="Recycling"
-                                        VirtualizingPanel.CacheLengthUnit="Page"
-                                        VirtualizingPanel.CacheLength="2,2" />
+                        <VirtualizingStackPanel />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>

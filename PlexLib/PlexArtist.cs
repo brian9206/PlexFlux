@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Xml;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace PlexLib
 {
-    public class PlexArtist
+    public class PlexArtist : IPlexMediaObject
     {
         public bool IsBrief
         {
@@ -58,6 +59,11 @@ namespace PlexLib
             MetadataUrl = track.Attributes["grandparentKey"].InnerText;
             Title = HttpUtility.HtmlDecode(track.Attributes["grandparentTitle"].InnerText);
             Thumb = track.Attributes["grandparentThumb"] == null ? null : track.Attributes["grandparentThumb"].InnerText;
+        }
+
+        public Task<PlexLibrary> LookupLibrary(PlexClient client)
+        {
+            return Task.FromResult(Library);
         }
     }
 }

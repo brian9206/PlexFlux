@@ -45,16 +45,31 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="46"/>
                 <ColumnDefinition />
-                <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
 
             <!-- Artwork -->
             <Border Margin="3" Background="Black">
-                <Image x:Name="imageArtwork" Stretch="Uniform" />
+                <Image x:Name="imageArtwork" Stretch="UniformToFill" />
             </Border>
 
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0">
-                <TextBlock Margin="0,0,0,0"
+            <DockPanel Grid.Column="1" Margin="5,0,5,0">
+                <!-- Delete button -->
+                <Button DockPanel.Dock="Right" Margin="5,0,2,0" Width="10" Height="10" HorizontalAlignment="Right" BorderThickness="0" Click="DeleteButton_Click" Visibility="{Binding Path=DeleteButtonVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}">
+                    <Viewbox Stretch="Fill">
+                        <!--<Canvas Width="512" Height="512">
+                            <Path Data="M256,33C132.3,33,32,133.3,32,257c0,123.7,100.3,224,224,224c123.7,0,224-100.3,224-224C480,133.3,379.7,33,256,33z    M364.3,332.5c1.5,1.5,2.3,3.5,2.3,5.6c0,2.1-0.8,4.2-2.3,5.6l-21.6,21.7c-1.6,1.6-3.6,2.3-5.6,2.3c-2,0-4.1-0.8-5.6-2.3L256,289.8   l-75.4,75.7c-1.5,1.6-3.6,2.3-5.6,2.3c-2,0-4.1-0.8-5.6-2.3l-21.6-21.7c-1.5-1.5-2.3-3.5-2.3-5.6c0-2.1,0.8-4.2,2.3-5.6l75.7-76   l-75.9-75c-3.1-3.1-3.1-8.2,0-11.3l21.6-21.7c1.5-1.5,3.5-2.3,5.6-2.3c2.1,0,4.1,0.8,5.6,2.3l75.7,74.7l75.7-74.7   c1.5-1.5,3.5-2.3,5.6-2.3c2.1,0,4.1,0.8,5.6,2.3l21.6,21.7c3.1,3.1,3.1,8.2,0,11.3l-75.9,75L364.3,332.5z" 
+                                  Fill="#99FFFFFF" />
+                        </Canvas>-->
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M22.245,4.015c0.313,0.313,0.313,0.826,0,1.139l-6.276,6.27c-0.313,0.312-0.313,0.826,0,1.14l6.273,6.272  c0.313,0.313,0.313,0.826,0,1.14l-2.285,2.277c-0.314,0.312-0.828,0.312-1.142,0l-6.271-6.271c-0.313-0.313-0.828-0.313-1.141,0  l-6.276,6.267c-0.313,0.313-0.828,0.313-1.141,0l-2.282-2.28c-0.313-0.313-0.313-0.826,0-1.14l6.278-6.269  c0.313-0.312,0.313-0.826,0-1.14L1.709,5.147c-0.314-0.313-0.314-0.827,0-1.14l2.284-2.278C4.308,1.417,4.821,1.417,5.135,1.73  L11.405,8c0.314,0.314,0.828,0.314,1.141,0.001l6.276-6.267c0.312-0.312,0.826-0.312,1.141,0L22.245,4.015z"
+                                  Fill="#99FFFFFF" />
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+
+                <!-- Track info -->
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Margin="0,0,0,0"
                            FontSize="17" 
                            Foreground="White" 
                            TextWrapping="Wrap" 
@@ -65,7 +80,7 @@
                            Text="{Binding Path=Title}"
                            ToolTip="{Binding Path=Title}" />
 
-                <TextBlock Margin="0,1,0,0"
+                    <TextBlock Margin="0,1,0,0"
                            FontSize="11"
                            Foreground="#44FFFFFF"
                            TextWrapping="WrapWithOverflow"
@@ -75,16 +90,8 @@
                            MaxHeight="16"
                            Text="{Binding Path=Artist.Title}"
                            ToolTip="{Binding Path=Artist.Title}" />
-            </StackPanel>
-            
-            <!-- Delete button -->
-            <Button Grid.Column="2" Width="14" Height="14" HorizontalAlignment="Left" BorderThickness="0" Click="DeleteButton_Click">
-                <Viewbox Stretch="Fill">
-                    <Canvas Width="512" Height="512">
-                        <Path Data="M256,33C132.3,33,32,133.3,32,257c0,123.7,100.3,224,224,224c123.7,0,224-100.3,224-224C480,133.3,379.7,33,256,33z    M364.3,332.5c1.5,1.5,2.3,3.5,2.3,5.6c0,2.1-0.8,4.2-2.3,5.6l-21.6,21.7c-1.6,1.6-3.6,2.3-5.6,2.3c-2,0-4.1-0.8-5.6-2.3L256,289.8   l-75.4,75.7c-1.5,1.6-3.6,2.3-5.6,2.3c-2,0-4.1-0.8-5.6-2.3l-21.6-21.7c-1.5-1.5-2.3-3.5-2.3-5.6c0-2.1,0.8-4.2,2.3-5.6l75.7-76   l-75.9-75c-3.1-3.1-3.1-8.2,0-11.3l21.6-21.7c1.5-1.5,3.5-2.3,5.6-2.3c2.1,0,4.1,0.8,5.6,2.3l75.7,74.7l75.7-74.7   c1.5-1.5,3.5-2.3,5.6-2.3c2.1,0,4.1,0.8,5.6,2.3l21.6,21.7c3.1,3.1,3.1,8.2,0,11.3l-75.9,75L364.3,332.5z" Fill="#99FFFFFF" />
-                    </Canvas>
-                </Viewbox>
-            </Button>
+                </StackPanel>
+            </DockPanel>
         </Grid>
     </Button>
     
