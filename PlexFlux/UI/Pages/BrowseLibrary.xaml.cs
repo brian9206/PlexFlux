@@ -53,6 +53,8 @@ namespace PlexFlux.UI.Pages
             }
         }
 
+        private bool isLoaded = false;
+
         public BrowseLibrary(ContextMenu contextMenu, PlexLibrary library)
         {
             MediaObjectsData = new ObservableCollection<IPlexMediaObject>();
@@ -110,11 +112,13 @@ namespace PlexFlux.UI.Pages
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DesignerProperties.GetIsInDesignMode(this))
+            if (DesignerProperties.GetIsInDesignMode(this) || isLoaded)
                 return;
 
             var app = (App)Application.Current;
             await LoadMediaObjects(app.config.LibraryDefaultCategory);
+
+            isLoaded = true;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

@@ -674,6 +674,45 @@ namespace PlexFlux.UI
             SelectSidebarItem(sender);
         }
 
+        private async void LibrarySidebarItem_Scan_Click(object sender, RoutedEventArgs e)
+        {
+            var item = ((FrameworkElement)e.Source).DataContext as PlexLibrary;
+
+            try
+            {
+                IsLoading = true;
+
+                var app = (App)Application.Current;
+                await app.plexClient.ScanLibrary(item);
+
+                bool isComplete = false;
+
+                while (!isComplete)
+                {
+                    isComplete = true;
+
+                    var libraries = await app.plexClient.GetLibraries();
+
+                    foreach (var library in libraries)
+                    {
+                        if (library.Key == item.Key && library.IsRefreshing)
+                            isComplete = false;
+                    }
+
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("Could not get data from remote server.\n" + exception.Message, "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                GoToPlayQueue();
+                IsLoading = false;
+            }
+        }
+
         // commands
         private void MediaCommands_Play_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {

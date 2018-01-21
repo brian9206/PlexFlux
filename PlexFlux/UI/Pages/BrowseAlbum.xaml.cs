@@ -70,6 +70,7 @@ namespace PlexFlux.UI.Pages
             }
         }
 
+        private bool isLoaded = false;
         private CancellationTokenSource artworkResizeTokenSource;
 
         public BrowseAlbum(PlexAlbum album, ContextMenu contextMenu)
@@ -118,18 +119,22 @@ namespace PlexFlux.UI.Pages
 
             LoadArtwork();
 
-            try
+            if (!isLoaded)
             {
-                var app = (App)Application.Current;
-                var tracks = await app.plexClient.GetTracks(Album);
-                TracksData.FromArray(tracks);
-            }
-            catch
-            {
-                MessageBox.Show("Could not fetch data from remote server.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                try
+                {
+                    var app = (App)Application.Current;
+                    var tracks = await app.plexClient.GetTracks(Album);
+                    TracksData.FromArray(tracks);
+                }
+                catch
+                {
+                    MessageBox.Show("Could not fetch data from remote server.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
             }
 
             IsLoading = false;
+            isLoaded = true;
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)

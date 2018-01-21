@@ -32,6 +32,12 @@ namespace PlexLib
             internal set;
         }
 
+        public bool IsRefreshing
+        {
+            get;
+            internal set;
+        }
+
         internal PlexLibrary(XmlNode node, bool isMediaContainer)
         {
             if (isMediaContainer)
@@ -48,6 +54,7 @@ namespace PlexLib
                 UUID = node.Attributes["uuid"].InnerText;
                 Title = HttpUtility.HtmlDecode(node.Attributes["title"].InnerText);
                 Type = node.Attributes["type"].InnerText;
+                IsRefreshing = node.Attributes["refreshing"].InnerText == "1";
             }
         }
 

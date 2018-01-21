@@ -231,6 +231,11 @@ namespace PlexLib
             await connection.RequestServer(playlist.MetadataUrl + "/" + track.PlaylistItemID + "/move", nvc, "PUT");
         }
 
+        public async Task ScanLibrary(PlexLibrary library)
+        {
+            await connection.RequestServer("/library/sections/" + library.Key + "/refresh");
+        }
+
         public Uri GetPhotoTranscodeUrl(string url, int width, int height, bool minSize = true)
         {
             return connection.BuildRequestUrl("/photo/:/transcode", new NameValueCollection()
