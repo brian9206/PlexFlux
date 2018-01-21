@@ -311,7 +311,7 @@ namespace PlexFlux.UI
             if (server == null)
                 server = app.SelectPlexServer();
             else
-                app.ConnectToPlexServer(server);
+                await app.ConnectToPlexServer(server);
 
             Server = server;
             await Refresh();
@@ -426,7 +426,7 @@ namespace PlexFlux.UI
 
             if (server != null)
             {
-                app.ConnectToPlexServer(server);
+                await app.ConnectToPlexServer(server);
 
                 Server = server;
                 await Refresh();
@@ -661,6 +661,17 @@ namespace PlexFlux.UI
             finally
             {
                 await FetchPlaylists();
+
+                // switch to play queue if we are browsing the deleted playlist
+                var page = frame.Content;
+
+                if (page is Pages.BrowsePlaylist)
+                {
+                    var browsePlaylist = (Pages.BrowsePlaylist)page;
+
+                    if (browsePlaylist.Playlist.MetadataUrl == playlist.MetadataUrl)
+                        GoToPlayQueue();
+                }
             }
         }
 

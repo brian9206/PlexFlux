@@ -3,6 +3,15 @@ A music streaming player for Plex media server
 
 ![Screenshot](screenshot.png "Screenshot")
 
+## Download
+[Download from Github](https://github.com/brian9206/PlexFlux/releases/latest)
+
+### System Requirement
+* Windows Vista or above
+* Desktop Experience must be enabled for Windows Server
+* .NET Framework 4.6.1 Full installed
+* Internet connection
+
 ## Features
 - Play Queue which is easy to manage
 - Upcoming list like iTunes

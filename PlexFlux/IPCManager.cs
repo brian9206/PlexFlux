@@ -107,6 +107,16 @@ namespace PlexFlux
                     }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
                     
                     break;
+
+                case "restoreWindow":
+                    Task.Factory.StartNew(() =>
+                    {
+                        mainWindow.RestoreFromSystemTray();
+                        mainWindow.Activate();
+
+                    }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+
+                    break;
             }
         }
 

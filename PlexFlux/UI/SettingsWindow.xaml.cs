@@ -37,7 +37,7 @@ namespace PlexFlux.UI
                 return;
 
             var runKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
-            checkLaunchStartup.IsChecked = runKey.GetSubKeyNames().Contains("PlexFlux");
+            checkLaunchStartup.IsChecked = runKey.GetValueNames().Contains("PlexFlux");
 
             var app = (App)Application.Current;
             checkMinimize.IsChecked = app.config.AllowMinimize;

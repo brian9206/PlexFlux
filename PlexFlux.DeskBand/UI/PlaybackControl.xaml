@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="240" Foreground="White" FontFamily="Segoe UI"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
-             Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded">
+             Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded" MouseDoubleClick="UserControl_MouseDoubleClick">
     <UserControl.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Width" Value="20" />
@@ -37,7 +37,7 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <Border Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="0,0,2,0">
+        <Border Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="0,0,2,0" ToolTip="{Binding Path=Title}">
             <Border Margin="2" Background="Black">
                 <Image x:Name="imageArtwork" />
             </Border>

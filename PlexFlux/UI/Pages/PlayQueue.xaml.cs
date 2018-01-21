@@ -138,15 +138,21 @@ namespace PlexFlux.UI.Pages
 
             var app = (App)Application.Current;
 
+            // scroll to current playing offset
             Task.Factory.StartNew(() =>
             {
-                var playQueue = PlayQueueManager.GetInstance();
+                for (int i = 0; i < panelTracks.Items.Count; i++)
+                {
+                    var button = (Component.TrackButton)ItemsControlHelper.GetItemChildByIndex(panelTracks, i);
 
-                if (playQueue.Current < 0)
-                    return;
+                    if (button.IsPlaying)
+                    {
+                        var scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(panelTracks, 0);
+                        scrollViewer.ScrollToVerticalOffset(i == 0 ? 0 : i - 1);
 
-                var scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(panelTracks, 0);
-                scrollViewer.ScrollToVerticalOffset(playQueue.Current - 1);
+                        break;
+                    }
+                }
 
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }

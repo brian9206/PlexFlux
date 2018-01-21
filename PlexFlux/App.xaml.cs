@@ -131,13 +131,17 @@ namespace PlexFlux
             return server;
         }
 
-        public void ConnectToPlexServer(PlexServer server)
+        public Task ConnectToPlexServer(PlexServer server)
         {
-            if (!server.HasSelectedAddress)
-                server.SelectAddress();
+            return Task.Factory.StartNew(() =>
+            {
+                if (!server.HasSelectedAddress)
+                    server.SelectAddress(); // this, should not block the UI
 
-            plexConnection = new PlexConnection(deviceInfo, server);
-            plexClient = new PlexClient(plexConnection);
+                plexConnection = new PlexConnection(deviceInfo, server);
+                plexClient = new PlexClient(plexConnection);
+
+            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public MMDevice GetDeviceByID(string deviceID)

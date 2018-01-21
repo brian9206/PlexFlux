@@ -115,6 +115,15 @@ namespace PlexFlux.DeskBand.UI
             client.Close();
         }
 
+        private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var factory = new IPCMessageFactory();
+            var message = factory.Create("restoreWindow");
+
+            var client = IPCClient.GetInstance();
+            client.Send(message);
+        }
+
         private void IPCClient_Disconnected(object sender, EventArgs e)
         {
             Task.Factory.StartNew(() =>
