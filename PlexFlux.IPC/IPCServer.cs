@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.IO.Pipes;
 using System.Xml;
-using System.Threading;
 using NamedPipeWrapper;
 
 namespace PlexFlux.IPC

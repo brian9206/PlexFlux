@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Net;
 using System.IO;
-using NAudio.Wave;
 using System.Threading.Tasks;
+using NAudio.Wave;
 
 namespace PlexFlux.Streaming
 {
@@ -115,8 +115,10 @@ namespace PlexFlux.Streaming
                             WaveFormat waveFormat = new Mp3WaveFormat(frame.SampleRate, frame.ChannelMode == ChannelMode.Mono ? 1 : 2, frame.FrameLength, frame.BitRate);
                             decompressor = new AcmMp3FrameDecompressor(waveFormat);
 
-                            bufferedWaveProvider = new BufferedWaveProvider(decompressor.OutputFormat);
-                            bufferedWaveProvider.BufferDuration = TimeSpan.FromSeconds(40);
+                            bufferedWaveProvider = new BufferedWaveProvider(decompressor.OutputFormat)
+                            {
+                                BufferDuration = TimeSpan.FromMinutes(15)   // mitigate #3
+                            };
                         }
 
                         int decompressed = decompressor.DecompressFrame(frame, buffer, 0);
@@ -168,6 +170,10 @@ namespace PlexFlux.Streaming
                             // maybe it is disposed already
                         }
                     }
+
+                    // discard buffered data
+                    if (bufferedWaveProvider != null)
+                        bufferedWaveProvider.ClearBuffer();
                 }
 
                 disposedValue = true;

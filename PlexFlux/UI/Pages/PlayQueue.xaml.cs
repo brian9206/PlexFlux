@@ -1,22 +1,13 @@
 ﻿using GongSolutions.Wpf.DragDrop;
 using PlexLib;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PlexFlux.UI.Pages
 {
@@ -141,18 +132,13 @@ namespace PlexFlux.UI.Pages
             // scroll to current playing offset
             Task.Factory.StartNew(() =>
             {
-                for (int i = 0; i < panelTracks.Items.Count; i++)
-                {
-                    var button = (Component.TrackButton)ItemsControlHelper.GetItemChildByIndex(panelTracks, i);
-
-                    if (button.IsPlaying)
-                    {
-                        var scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(panelTracks, 0);
-                        scrollViewer.ScrollToVerticalOffset(i == 0 ? 0 : i - 1);
-
-                        break;
-                    }
-                }
+                var playQueue = PlayQueueManager.GetInstance();
+                
+                if (playQueue.Current < 0)
+                    return;
+                
+                var scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(panelTracks, 0);
+                scrollViewer.ScrollToVerticalOffset(playQueue.Current - 1);
 
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }
