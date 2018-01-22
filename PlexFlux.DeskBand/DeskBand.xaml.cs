@@ -50,7 +50,6 @@ namespace PlexFlux.DeskBand
             ServicePointManager.DefaultConnectionLimit = 65535;
 
             instance = this;
-
             InitializeComponent();
 
             Options.TopRow = true;

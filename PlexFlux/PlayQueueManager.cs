@@ -94,15 +94,18 @@ namespace PlexFlux
 
         public PlexTrack FromTracks(System.ComponentModel.ICollectionView tracks, int current = -1)
         {
-            if (current < 0)
-                current = 0;
-
             lock (tracks)
             {
                 this.tracks.Clear();
 
                 foreach (var track in tracks)
                     this.tracks.Add(track as PlexTrack);
+            }
+
+            if (current < 0)
+            {
+                var playback = PlaybackManager.GetInstance();
+                current = playback.IsShuffle ? new Random().Next(0, this.tracks.Count - 1) : current;
             }
 
             ResetPlayedIndexes();
@@ -115,15 +118,18 @@ namespace PlexFlux
 
         public PlexTrack FromTracks(PlexTrack[] tracks, int current = -1)
         {
-            if (current < 0)
-                current = 0;
-
             lock (tracks)
             {
                 this.tracks.Clear();
 
                 foreach (var track in tracks)
                     this.tracks.Add(track); 
+            }
+
+            if (current < 0)
+            {
+                var playback = PlaybackManager.GetInstance();
+                current = playback.IsShuffle ? new Random().Next(0, this.tracks.Count - 1) : current;
             }
 
             ResetPlayedIndexes();

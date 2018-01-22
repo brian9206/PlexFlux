@@ -53,6 +53,10 @@ namespace PlexFlux
 
             switch (messageNode.Attributes["action"].InnerText)
             {
+                case "update":
+                    IPCServer_Connected(sender, null);
+                    break;
+
                 case "play":
                     Task.Factory.StartNew(() =>
                     {

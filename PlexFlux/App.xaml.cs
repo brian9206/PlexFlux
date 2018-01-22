@@ -125,6 +125,7 @@ namespace PlexFlux
             if (server != null)
             {
                 config.ServerMachineIdentifier = server.MachineIdentifier;
+                config.LastPlaylist = null;
                 config.Save();
             }
 

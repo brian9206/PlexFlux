@@ -316,6 +316,23 @@ namespace PlexFlux.UI
             Server = server;
             await Refresh();
 
+            // try to load playlist to play queue
+            if (app.config.LastPlaylist != null)
+            {
+                try
+                {
+                    var playlists = await app.plexClient.GetPlaylists();
+                    var playlist = playlists.Where(pl => pl.MetadataUrl == app.config.LastPlaylist).FirstOrDefault();
+
+                    if (playlist != null)
+                        playQueue.FromTracks(await app.plexClient.GetTracks(playlist));
+                }
+                catch
+                {
+                    // suppress
+                }
+            }
+
             IsLoading = false;
 
             // check update
@@ -586,6 +603,8 @@ namespace PlexFlux.UI
                 var playback = PlaybackManager.GetInstance();
                 playback.Play(track);
 
+                app.config.LastPlaylist = playlist.MetadataUrl;
+
                 GoToPlayQueue();
             }
             catch (WebException exception)
@@ -779,6 +798,9 @@ namespace PlexFlux.UI
                 {
                     var browsePlaylist = (Pages.BrowsePlaylist)page;
                     track = playQueue.FromTracks(browsePlaylist.Tracks.ToArray());
+
+                    var app = (App)Application.Current;
+                    app.config.LastPlaylist = browsePlaylist.Playlist.MetadataUrl;
 
                     GoToPlayQueue();
                 }

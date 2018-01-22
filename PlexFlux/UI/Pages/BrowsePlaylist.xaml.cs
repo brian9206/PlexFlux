@@ -147,6 +147,9 @@ namespace PlexFlux.UI.Pages
             var playback = PlaybackManager.GetInstance();
             playback.Play(track);
 
+            var app = (App)Application.Current;
+            app.config.LastPlaylist = Playlist.MetadataUrl;
+
             var mainWindow = MainWindow.GetInstance();
             mainWindow.GoToPlayQueue();
         }

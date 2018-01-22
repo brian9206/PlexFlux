@@ -27,6 +27,7 @@ namespace PlexFlux
         public int WindowPosX, WindowPosY;
 
         public string LibraryDefaultCategory;
+        public string LastPlaylist;
 
         public AppConfig()
         {
@@ -48,6 +49,7 @@ namespace PlexFlux
             WindowPosX = WindowPosY = int.MinValue;
 
             LibraryDefaultCategory = "Artists";
+            LastPlaylist = null;
         }
 
         #region "Save / Load"

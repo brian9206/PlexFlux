@@ -104,6 +104,10 @@ namespace PlexFlux.DeskBand.UI
             client.MessageReceived += IPCClient_MessageReceived;
 
             client.Init();
+
+            // update information
+            var factory = new IPCMessageFactory();
+            client.Send(factory.Create("update"));
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
