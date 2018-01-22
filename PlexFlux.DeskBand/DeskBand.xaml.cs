@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CSDeskBand;
+using CSDeskBand.Wpf;
 
 namespace PlexFlux.DeskBand
 {
@@ -60,8 +61,6 @@ namespace PlexFlux.DeskBand
 
             Options.Vertical.Width = Options.MinVertical.Width = Options.MaxVertical.Width = 0;
             Options.Vertical.Height = Options.MinVertical.Height = Options.MaxVertical.Height = 0;
-
-            Options.Title = "PlexFlux DeskBand";
 
             ShowDeskBand(false);
         }

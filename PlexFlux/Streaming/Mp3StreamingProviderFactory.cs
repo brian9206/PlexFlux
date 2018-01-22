@@ -171,9 +171,16 @@ namespace PlexFlux.Streaming
                         }
                     }
 
-                    // discard buffered data
-                    if (bufferedWaveProvider != null)
-                        bufferedWaveProvider.ClearBuffer();
+                    try
+                    {
+                        // discard buffered data
+                        if (bufferedWaveProvider != null)
+                            bufferedWaveProvider.ClearBuffer();
+                    }
+                    catch
+                    {
+                        // suppress
+                    }
                 }
 
                 disposedValue = true;
