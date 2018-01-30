@@ -52,8 +52,13 @@ namespace PlexLib
 
         public HttpWebRequest CreateRequest(string endpoint, NameValueCollection query = null, string method = "GET")
         {
+            return CreateRequest(BuildRequestUrl(endpoint, query), method);
+        }
+
+        public HttpWebRequest CreateRequest(Uri endpoint, string method = "GET")
+        {
             // request server
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BuildRequestUrl(endpoint, query));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(endpoint);
             request.Method = method;
             request.UserAgent = deviceInfo.UserAgent;
             request.Timeout = 5 * 1000;

@@ -61,11 +61,12 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="10,0,10,10">
-                <Slider x:Name="sliderPosition" IsEnabled="False" />
+                <Slider x:Name="sliderPosition" IsEnabled="False" ValueChanged="sliderPosition_ValueChanged" />
 
                 <Grid Margin="0,3,0,15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
+                        <ColumnDefinition Width="80"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
@@ -77,7 +78,21 @@
                     </Grid.Resources>
 
                     <TextBlock x:Name="textPosition" Grid.Column="0">00:00</TextBlock>
-                    <TextBlock x:Name="textPositionRemaining" Grid.Column="1" TextAlignment="Right">00:00</TextBlock>
+                    <TextBlock x:Name="textBuffering" Grid.Column="1" TextAlignment="Center" Visibility="Collapsed">
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="TextBlock.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard BeginTime="0:0:1">
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                                         From="1.0" To="0.2" Duration="0:0:0.5" 
+                                                         AutoReverse="True" RepeatBehavior="Forever" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                        buffering...
+                    </TextBlock>
+                    <TextBlock x:Name="textPositionRemaining" Grid.Column="2" TextAlignment="Right">00:00</TextBlock>
                 </Grid>
 
                 <TextBlock TextWrapping="NoWrap" 

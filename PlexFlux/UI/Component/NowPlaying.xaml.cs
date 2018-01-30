@@ -41,6 +41,7 @@ namespace PlexFlux.UI.Component
         }
 
         private CancellationTokenSource artworkResizeTokenSource;
+        private bool doNotTriggerSliderEvent;
 
         public NowPlaying()
         {
@@ -160,21 +161,28 @@ namespace PlexFlux.UI.Component
 
             Task.Factory.StartNew(() =>
             {
+                doNotTriggerSliderEvent = true;
+
                 if (Track == null)
                 {
                     sliderPosition.Value = 0;
                     sliderPosition.Maximum = 1;
+                    sliderPosition.IsEnabled = false;
                     textPosition.Text = "00:00";
                     textPositionRemaining.Text = "00:00";
+                    textBuffering.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    var position = PlaybackManager.GetInstance().Position;
+                    var playback = PlaybackManager.GetInstance();
+
+                    var position = playback.Position;
                     var duration = Track.Duration;
                     var remaining = duration - position;
 
                     sliderPosition.Value = position;
                     sliderPosition.Maximum = duration;
+                    sliderPosition.IsEnabled = true;
 
                     int positionMinute = (int)Math.Floor(position / 60.0);
                     int positionSecond = (int)(position - positionMinute * 60.0);
@@ -183,7 +191,11 @@ namespace PlexFlux.UI.Component
                     int remainingMinute = (int)Math.Floor(remaining / 60.0);
                     int remainingSecond = (int)(remaining - remainingMinute * 60.0);
                     textPositionRemaining.Text = remainingMinute.ToString().PadLeft(2, '0') + ":" + remainingSecond.ToString().PadLeft(2, '0');
+
+                    textBuffering.Visibility = playback.IsBuffering ? Visibility.Visible : Visibility.Collapsed;
                 }
+
+                doNotTriggerSliderEvent = false;
 
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
         }
@@ -197,6 +209,8 @@ namespace PlexFlux.UI.Component
                 LoadArtwork();
 
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+
+            PlaybackControl_PlaybackTick(sender, e);
         }
 
         private void Upcomings_TrackChanged(object sender, EventArgs e)
@@ -255,6 +269,14 @@ namespace PlexFlux.UI.Component
         {
             var button = (Component.TrackButton)((ContextMenu)((MenuItem)e.Source).Parent).PlacementTarget;
             TrackButton_Click(button, e);
+        }
+
+        private void sliderPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (doNotTriggerSliderEvent)
+                return;
+
+            PlaybackManager.GetInstance().Position = (long)e.NewValue;
         }
     }
 }
