@@ -271,7 +271,7 @@ namespace PlexFlux.UI.Component
             TrackButton_Click(button, e);
         }
 
-        private void sliderPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Position_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (doNotTriggerSliderEvent)
                 return;

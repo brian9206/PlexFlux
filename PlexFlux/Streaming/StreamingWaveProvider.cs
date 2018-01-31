@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Threading;
 using System.IO;
+using System.Runtime.InteropServices;
 using NAudio.Wave;
 
 namespace PlexFlux.Streaming
 {
     class StreamingWaveProvider : IWaveProvider, IDisposable
     {
-        private readonly MemoryStream stream;
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
+
+        private readonly Stream stream;
+        private readonly string tempFileName;
+
         private long readPosition = 0;
         private long writePosition = 0;
 
@@ -48,11 +55,42 @@ namespace PlexFlux.Streaming
             set;
         }
 
-        public StreamingWaveProvider(WaveFormat waveFormat)
+        public bool UseMemory
         {
-            stream = new MemoryStream();
+            get;
+            private set;
+        }
+
+        public StreamingWaveProvider(WaveFormat waveFormat, ulong totalSize = 0)
+        {
             WaveFormat = waveFormat;
             MinimumBufferedDuration = TimeSpan.FromSeconds(2);  // at least 2s ahead
+            UseMemory = totalSize == 0;
+
+            if (!UseMemory)
+            {
+                try
+                {
+                    string tempPath = Path.GetTempPath();
+                    GetDiskFreeSpaceEx(tempPath, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
+
+                    if (lpFreeBytesAvailable < totalSize)
+                        throw new OutOfMemoryException("Temp path do not have enough space to store the whole buffer.");
+
+                    tempFileName = Path.GetTempFileName();
+                    stream = new FileStream(tempFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                }
+                catch (IOException)
+                {
+                    UseMemory = true;
+                }
+            }
+
+            // fail over
+            if (UseMemory)
+            {
+                stream = new MemoryStream();
+            }
         }
 
         public void AddSamples(byte[] buffer, int offset, int count)
@@ -118,12 +156,19 @@ namespace PlexFlux.Streaming
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
                     stream.Dispose();
-                }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
+                    // remove temp file
+                    try
+                    {
+                        if (!UseMemory)
+                            File.Delete(tempFileName);
+                    }
+                    catch (IOException)
+                    {
+                        // we actually don't care if it is succeed or not
+                    }
+                }
 
                 disposedValue = true;
             }

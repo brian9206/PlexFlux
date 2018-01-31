@@ -4,17 +4,19 @@ using System.Net;
 using System.IO;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using System.Windows;
 
 namespace PlexFlux.Streaming
 {
     class Mp3Streaming : IDisposable
     {
         private HttpWebRequest request;
+        private HttpWebResponse response;
         private ReadFullyStream sourceStream;
         private StreamingWaveProvider waveProvider;
         private ManualResetEvent instantiateWaitHandle;
         private TimeSpan startTime;
-
+        
         public bool Started
         {
             get;
@@ -94,7 +96,7 @@ namespace PlexFlux.Streaming
             {
                 try
                 {
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    response = (HttpWebResponse)request.GetResponse();
                     sourceStream = new ReadFullyStream(response.GetResponseStream());
                 }
                 catch (Exception)
@@ -149,7 +151,16 @@ namespace PlexFlux.Streaming
                     WaveFormat waveFormat = new Mp3WaveFormat(frame.SampleRate, frame.ChannelMode == ChannelMode.Mono ? 1 : 2, frame.FrameLength, frame.BitRate);
                     decompressor = new AcmMp3FrameDecompressor(waveFormat);
 
-                    waveProvider = new StreamingWaveProvider(decompressor.OutputFormat)
+                    var app = (App)Application.Current;
+                    ulong waveSize = 0;
+
+                    if (!app.config.DisableDiskCaching)
+                    {
+                        // calculate decompressed wave size
+                        waveSize = (ulong)(waveFormat.SampleRate * 16 * waveFormat.Channels * PlaybackManager.GetInstance().Track.Duration / 8);    // workaround: 16 = waveFormat.BitsPerSample, sometimes waveFormat.BitsPerSample is equals to 0
+                    }
+
+                    waveProvider = new StreamingWaveProvider(decompressor.OutputFormat, waveSize)
                     {
                         Current = startTime
                     };

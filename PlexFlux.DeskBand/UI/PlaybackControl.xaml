@@ -11,7 +11,7 @@
     <UserControl.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Width" Value="20" />
-            <Setter Property="Background" Value="#00000000" />
+            <Setter Property="Background" Value="#01FFFFFF" />
             <Setter Property="Foreground" Value="#FFFFFFFF" />
 
             <Setter Property="Template">
@@ -107,14 +107,24 @@
                 </Canvas>
             </DockPanel>
 
-            <Slider x:Name="sliderPosition" Grid.Column="0" Grid.Row="1" IsEnabled="False" VerticalAlignment="Top" Margin="0,3,0,0" Value="{Binding Path=Position}" Maximum="{Binding Path=Duration}">
+            <Slider x:Name="sliderPosition" 
+                    Grid.Column="0" Grid.Row="1" 
+                    IsEnabled="False" 
+                    IsMoveToPointEnabled="True"
+                    VerticalAlignment="Top" Margin="0,3,0,0" 
+                    Maximum="{Binding Path=Duration}"
+                    ValueChanged="Position_ValueChanged">
                 <Slider.LayoutTransform>
                     <ScaleTransform CenterX="0" CenterY="0"
                                     ScaleX="0.4" ScaleY="0.5" />
                 </Slider.LayoutTransform>
             </Slider>
 
-            <Slider x:Name="sliderVolume" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="0,3,0,0" ToolTip="Volume" Maximum="100" ValueChanged="Volume_ValueChanged">
+            <Slider x:Name="sliderVolume" 
+                    Grid.Column="1" Grid.Row="1" 
+                    VerticalAlignment="Top" Margin="0,3,0,0" 
+                    AutoToolTipPlacement="TopLeft" Maximum="100" 
+                    ValueChanged="Volume_ValueChanged">
                 <Slider.LayoutTransform>
                     <ScaleTransform CenterX="0" CenterY="0"
                                     ScaleX="0.4" ScaleY="0.5" />

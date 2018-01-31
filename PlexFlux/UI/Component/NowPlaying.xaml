@@ -61,7 +61,10 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="10,0,10,10">
-                <Slider x:Name="sliderPosition" IsEnabled="False" ValueChanged="sliderPosition_ValueChanged" />
+                <Slider x:Name="sliderPosition" 
+                        IsEnabled="False" 
+                        IsMoveToPointEnabled="True" 
+                        ValueChanged="Position_ValueChanged" />
 
                 <Grid Margin="0,3,0,15">
                     <Grid.ColumnDefinitions>

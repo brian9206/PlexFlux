@@ -7,7 +7,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Settings" Style="{StaticResource PlexFluxWindow}" DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Width="320" Height="450" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        Width="320" Height="465" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
         MinWidth="320" MinHeight="380" Loaded="Window_Loaded">
     <Window.Resources>
         <ResourceDictionary Source="Style/Settings.xaml" />
@@ -31,6 +31,11 @@
                     
                     <CheckBox x:Name="checkMinimize" 
                               Content="Allow to minimize to system tray" 
+                              HorizontalAlignment="Left" Margin="0,0,0,5" />
+
+                    <CheckBox x:Name="checkDisableDiskCaching" 
+                              Content="Disable disk caching" 
+                              ToolTip="Disabling disk caching will result in storing all wave data into memory. It can cause much more memory usage."
                               HorizontalAlignment="Left" />
                 </StackPanel>
                 
