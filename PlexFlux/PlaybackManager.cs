@@ -213,9 +213,7 @@ namespace PlexFlux
 
                     if (streaming.Error || Position >= Track.Duration)
                     {
-                        waveOut.Stop();
                         PlayNextTrack();
-
                         break;
                     }
 
