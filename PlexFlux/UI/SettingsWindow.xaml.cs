@@ -33,6 +33,7 @@ namespace PlexFlux.UI
 
             var app = (App)Application.Current;
             checkMinimize.IsChecked = app.config.AllowMinimize;
+            checkDisableDiskCaching.IsChecked = app.config.DisableDiskCaching;
 
             // device
             foreach (var device in new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
@@ -88,6 +89,7 @@ namespace PlexFlux.UI
 
             var app = (App)Application.Current;
             app.config.AllowMinimize = checkMinimize.IsChecked == true;
+            app.config.DisableDiskCaching = checkDisableDiskCaching.IsChecked == true;
             app.config.OutputDeviceID = (string)((ComboBoxItem)comboDevice.SelectedItem).Tag;
             app.config.IsExclusive = comboOutputMode.SelectedIndex == 1;
             app.config.TranscodeBitrate = (int)((ComboBoxItem)comboBitrate.SelectedItem).Tag;

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
@@ -11,7 +12,6 @@ using System.Net;
 using System.Reflection;
 using System.Diagnostics;
 using PlexLib;
-using System.Threading;
 
 namespace PlexFlux.UI
 {
@@ -132,10 +132,12 @@ namespace PlexFlux.UI
             systemTrayIcon.DoubleClick += SystemTrayIcon_DoubleClick;
 
             // -startup will result in default minimized
-            var args = Environment.GetCommandLineArgs();
-            if (args.Length >= 2 && args[1] == "-startup")
+            if (Environment.GetCommandLineArgs().Select(arg => arg.ToLower()).Contains("-startup"))
             {
                 WindowState = WindowState.Minimized;
+
+                // invoke event handler manually
+                Window_Loaded(this, new RoutedEventArgs());
                 Window_StateChanged(this, new EventArgs());
             }
         }

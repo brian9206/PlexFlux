@@ -6,6 +6,7 @@ using NAudio.Wave;
 using NAudio.CoreAudioApi;
 using PlexLib;
 using PlexFlux.Streaming;
+using System.Net;
 
 namespace PlexFlux
 {
@@ -23,7 +24,7 @@ namespace PlexFlux
         }
         #endregion
 
-        private Mp3StreamingProviderFactory sourceProviderFactory = null;
+        private Mp3Streaming streaming = null;
 
         private IWavePlayer waveOut = null;
         private VolumeWaveProvider16 provider = null;
@@ -75,20 +76,18 @@ namespace PlexFlux
         {
             get
             {
-                if (initializing)
+                if (streaming == null)
                     return 0;
 
-                if (waveOut == null)
-                    return 0;
+                return (long)Math.Floor(streaming.Current.TotalSeconds);
+            }
 
-                var type = waveOut.GetType();
+            set
+            {
+                if (streaming == null)
+                    return;
 
-                if (type == typeof(WaveOut))
-                    return (long)(((WaveOut)waveOut).GetPosition() * 1d / ((WaveOut)waveOut).OutputWaveFormat.AverageBytesPerSecond);
-                else if (type == typeof(WasapiOut))
-                    return (long)(((WasapiOut)waveOut).GetPosition() * 1d / ((WasapiOut)waveOut).OutputWaveFormat.AverageBytesPerSecond);
-
-                return 0;
+                streaming.Current = TimeSpan.FromSeconds(value);
             }
         }
 
@@ -136,6 +135,11 @@ namespace PlexFlux
             }
         }
 
+        public bool IsBuffering
+        {
+            get => streaming == null || streaming.IsBuffering;
+        }
+
         private PlaybackManager()
         {
             initEvent = new AutoResetEvent(false);
@@ -155,67 +159,69 @@ namespace PlexFlux
             }
         }
 
-        private async Task PlaybackTask()
+        private Task PlaybackTask()
         {
-            var app = (App)Application.Current;
-
-            // make transcode URL
-            var url = app.plexClient.GetMusicTranscodeUrl(Track, app.config.TranscodeBitrate < 0 ? 320 : app.config.TranscodeBitrate);
-
-            if (app.config.TranscodeBitrate < 0)
+            return Task.Run(() =>
             {
-                // try to find mp3 so no transcode is needed if found
-                var media = Track.FindByFormat("mp3");
+                var app = (App)Application.Current;
 
-                if (media != null)
-                    url = app.plexConnection.BuildRequestUrl(media.Url);
-            }
+                // make transcode URL
+                var url = app.plexClient.GetMusicTranscodeUrl(Track, app.config.TranscodeBitrate < 0 ? 320 : app.config.TranscodeBitrate);
 
-            var factory = new Mp3StreamingProviderFactory(url, app.plexConnection.DeviceInfo.UserAgent);
-            sourceProviderFactory = factory;
-
-            var sourceProvider = await factory.GetWaveProvider();
-
-            // check if we have aborted
-            if (sourceProvider == null)
-            {
-                if (!factory.Aborted && factory.Error)
-                    PlayNextTrack();
-
-                return;
-            }
-                
-            provider = new VolumeWaveProvider16(sourceProvider);
-            provider.Volume = volume;
-
-            // init output
-            waveOut.Init(provider);
-            waveOut.Play();
-
-            if (pauseAfterInit)
-                waveOut.Pause();
-
-            // init completed
-            initializing = false;
-            pauseAfterInit = false;
-            initEvent.Set();
-
-            // stop after playback is complete
-            while (waveOut != null && waveOut.PlaybackState != PlaybackState.Stopped)
-            {
-                // tick
-                PlaybackTick?.Invoke(this, new EventArgs());
-
-                if (sourceProviderFactory.Error || Position >= Track.Duration)
+                if (app.config.TranscodeBitrate < 0)
                 {
-                    waveOut.Stop();
-                    PlayNextTrack();
+                    // try to find mp3 so no transcode is needed if found
+                    var media = Track.FindByFormat("mp3");
 
-                    break;
+                    if (media != null)
+                        url = app.plexConnection.BuildRequestUrl(media.Url);
                 }
-                    
-                await Task.Delay(250);
-            }
+
+                // start streaming
+                streaming = new Mp3Streaming(app.plexConnection.CreateRequest(url));
+                var sourceProvider = streaming.Start();
+
+                // check if we have aborted
+                if (sourceProvider == null)
+                {
+                    if (!streaming.Aborted && streaming.Error)
+                        PlayNextTrack();
+
+                    return;
+                }
+
+                provider = new VolumeWaveProvider16(sourceProvider);
+                provider.Volume = volume;
+
+                // init output
+                waveOut.Init(provider);
+                waveOut.Play();
+
+                if (pauseAfterInit)
+                    waveOut.Pause();
+
+                // init completed
+                initializing = false;
+                pauseAfterInit = false;
+                initEvent.Set();
+
+                // stop after playback is complete
+                while (waveOut != null && waveOut.PlaybackState != PlaybackState.Stopped)
+                {
+                    // tick
+                    PlaybackTick?.Invoke(this, new EventArgs());
+
+                    if (streaming.Error || Position >= Track.Duration)
+                    {
+                        waveOut.Stop();
+                        PlayNextTrack();
+
+                        break;
+                    }
+
+                    Thread.Sleep(250);
+                }
+            });
         }
 
         public void Reset()
@@ -223,15 +229,15 @@ namespace PlexFlux
             initializing = false;
             pauseAfterInit = false;
 
+            if (streaming != null)
+                streaming.Dispose();
+
             // clean up previous session
             if (waveOut != null)
             {
                 waveOut.Stop();
                 waveOut.Dispose();
             }
-
-            if (sourceProviderFactory != null)
-                sourceProviderFactory.Dispose();
 
             var app = (App)Application.Current;
 

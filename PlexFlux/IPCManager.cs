@@ -109,6 +109,18 @@ namespace PlexFlux
                     
                     break;
 
+                case "setPosition":
+                    Task.Factory.StartNew(() =>
+                    {
+                        long position = long.Parse(messageNode.SelectSingleNode("position").InnerText);
+
+                        var playback = PlaybackManager.GetInstance();
+                        playback.Position = position;
+
+                    }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+
+                    break;
+
                 case "restoreWindow":
                     Task.Factory.StartNew(() =>
                     {

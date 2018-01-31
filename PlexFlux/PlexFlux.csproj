@@ -94,7 +94,8 @@
     <Compile Include="ObservableCollectionExtension.cs" />
     <Compile Include="PlaybackManager.cs" />
     <Compile Include="PlayQueueManager.cs" />
-    <Compile Include="Streaming\Mp3StreamingProviderFactory.cs" />
+    <Compile Include="Streaming\Mp3Streaming.cs" />
+    <Compile Include="Streaming\StreamingWaveProvider.cs" />
     <Compile Include="UI\AuthWindow.xaml.cs">
       <DependentUpon>AuthWindow.xaml</DependentUpon>
     </Compile>

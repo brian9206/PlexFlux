@@ -10,6 +10,7 @@ namespace PlexFlux
     public class AppConfig
     {
         public bool AllowMinimize;
+        public bool DisableDiskCaching;
 
         public string OutputDeviceID;
         public bool IsExclusive;
@@ -32,6 +33,7 @@ namespace PlexFlux
         public AppConfig()
         {
             AllowMinimize = false;
+            DisableDiskCaching = false;
 
             OutputDeviceID = null;
             IsExclusive = false;
