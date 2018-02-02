@@ -76,6 +76,12 @@
 
                     <!-- Pause -->
                     <Button x:Name="buttonPause" ToolTip="Pause" Visibility="Collapsed" Click="Pause_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Stop" Click="Stop_Click" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        
                         <Viewbox Stretch="Uniform" Margin="2,2,2,1">
                             <Canvas Width="512" Height="512">
                                 <Path Data="M224,435.8V76.1c0-6.7-5.4-12.1-12.2-12.1h-71.6c-6.8,0-12.2,5.4-12.2,12.1v359.7c0,6.7,5.4,12.2,12.2,12.2h71.6 C218.6,448,224,442.6,224,435.8z" Fill="White" />

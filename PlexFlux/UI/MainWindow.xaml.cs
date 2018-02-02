@@ -815,7 +815,7 @@ namespace PlexFlux.UI
                 }
                 else
                 {
-                    track = playQueue.CurrentTrack;
+                    track = playQueue.Play(playbackManager.IsShuffle ? new Random().Next(0, playQueue.Count - 1) : 0);
                 }
             }
 
@@ -823,6 +823,23 @@ namespace PlexFlux.UI
                 return;
 
             playbackManager.Play(track);
+
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void MediaCommands_Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            var playback = PlaybackManager.GetInstance();
+            e.CanExecute = playback.PlaybackState == NAudio.Wave.PlaybackState.Playing;
+        }
+
+        private void MediaCommands_Stop_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var playback = PlaybackManager.GetInstance();
+            playback.Stop();
+
+            var playQueue = PlayQueueManager.GetInstance();
+            playQueue.ResetPlayedIndexes();
 
             CommandManager.InvalidateRequerySuggested();
         }

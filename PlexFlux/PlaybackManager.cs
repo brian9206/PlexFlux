@@ -272,6 +272,20 @@ namespace PlexFlux
             PlaybackStateChanged?.Invoke(track, new EventArgs());
         }
 
+        public void Stop()
+        {
+            // wait before the previous unfinished init to be completed first
+            if (initializing)
+                initEvent.WaitOne();
+
+            // reset!
+            Reset();
+            Track = null;
+
+            // invoke event
+            PlaybackStateChanged?.Invoke(null, new EventArgs());
+        }
+
         private void PlayNextTrack()
         {
             var playQueue = PlayQueueManager.GetInstance();

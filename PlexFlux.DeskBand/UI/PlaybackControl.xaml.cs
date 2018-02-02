@@ -240,6 +240,13 @@ namespace PlexFlux.DeskBand.UI
             client.Send(factory.Create("pause"));
         }
 
+        private void Stop_Click(object sender, RoutedEventArgs e)
+        {
+            var client = IPCClient.GetInstance();
+            var factory = new IPCMessageFactory();
+            client.Send(factory.Create("stop"));
+        }
+
         private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (doNotTriggerEvent)

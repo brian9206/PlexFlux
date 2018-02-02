@@ -77,6 +77,16 @@ namespace PlexFlux
 
                     break;
 
+                case "stop":
+                    Task.Factory.StartNew(() =>
+                    {
+                        if (MediaCommands.Stop.CanExecute(null, mainWindow))
+                            MediaCommands.Stop.Execute(null, mainWindow);
+
+                    }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+
+                    break;
+
                 case "previous":
                     Task.Factory.StartNew(() =>
                     {

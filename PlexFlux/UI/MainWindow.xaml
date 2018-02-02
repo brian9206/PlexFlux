@@ -22,6 +22,7 @@
     <Window.CommandBindings>
         <CommandBinding Command="MediaCommands.Play" CanExecute="MediaCommands_Play_CanExecute" Executed="MediaCommands_Play_Executed" />
         <CommandBinding Command="MediaCommands.Pause" CanExecute="MediaCommands_Pause_CanExecute" Executed="MediaCommands_Pause_Executed" />
+        <CommandBinding Command="MediaCommands.Stop" CanExecute="MediaCommands_Stop_CanExecute" Executed="MediaCommands_Stop_Executed" />
         <CommandBinding Command="MediaCommands.NextTrack" CanExecute="MediaCommands_NextTrack_CanExecute" Executed="MediaCommands_NextTrack_Executed" />
         <CommandBinding Command="MediaCommands.PreviousTrack" CanExecute="MediaCommands_PreviousTrack_CanExecute" Executed="MediaCommands_PreviousTrack_Executed" />
     </Window.CommandBindings>

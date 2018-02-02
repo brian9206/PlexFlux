@@ -282,5 +282,11 @@ namespace PlexFlux
             
             return track;
         }
+
+        public void Stop()
+        {
+            ResetPlayedIndexes();
+            Current = 0;
+        }
     }
 }

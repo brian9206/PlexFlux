@@ -111,6 +111,7 @@ namespace PlexFlux.UI.Component
             var playbackControl = PlaybackManager.GetInstance();
             playbackControl.StartPlaying += PlaybackControl_StartPlaying;
             playbackControl.PlaybackTick += PlaybackControl_PlaybackTick;
+            playbackControl.PlaybackStateChanged += PlaybackControl_PlaybackStateChanged;
 
             var upcomings = UpcomingManager.GetInstance();
             upcomings.TrackChanged += Upcomings_TrackChanged;
@@ -124,6 +125,8 @@ namespace PlexFlux.UI.Component
         {
             var playbackControl = PlaybackManager.GetInstance();
             playbackControl.StartPlaying -= PlaybackControl_StartPlaying;
+            playbackControl.PlaybackTick -= PlaybackControl_PlaybackTick;
+            playbackControl.PlaybackStateChanged -= PlaybackControl_PlaybackStateChanged;
 
             var upcomings = UpcomingManager.GetInstance();
             upcomings.TrackChanged -= Upcomings_TrackChanged;
@@ -211,6 +214,23 @@ namespace PlexFlux.UI.Component
             }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
 
             PlaybackControl_PlaybackTick(sender, e);
+        }
+
+        private void PlaybackControl_PlaybackStateChanged(object sender, EventArgs e)
+        {
+            var playback = PlaybackManager.GetInstance();
+           
+            if (playback.PlaybackState == NAudio.Wave.PlaybackState.Stopped)
+            {
+                sliderPosition.Value = 0;
+                sliderPosition.Maximum = 1;
+                sliderPosition.IsEnabled = false;
+                textPosition.Text = "00:00";
+                textPositionRemaining.Text = "00:00";
+                textBuffering.Visibility = Visibility.Collapsed;
+                imageArtwork.Source = null;
+                Track = null;
+            }
         }
 
         private void Upcomings_TrackChanged(object sender, EventArgs e)
