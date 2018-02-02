@@ -218,18 +218,23 @@ namespace PlexFlux.UI.Component
 
         private void PlaybackControl_PlaybackStateChanged(object sender, EventArgs e)
         {
+            var app = (App)Application.Current;
             var playback = PlaybackManager.GetInstance();
            
             if (playback.PlaybackState == NAudio.Wave.PlaybackState.Stopped)
             {
-                sliderPosition.Value = 0;
-                sliderPosition.Maximum = 1;
-                sliderPosition.IsEnabled = false;
-                textPosition.Text = "00:00";
-                textPositionRemaining.Text = "00:00";
-                textBuffering.Visibility = Visibility.Collapsed;
-                imageArtwork.Source = null;
-                Track = null;
+                Task.Factory.StartNew(() =>
+                {
+                    sliderPosition.Value = 0;
+                    sliderPosition.Maximum = 1;
+                    sliderPosition.IsEnabled = false;
+                    textPosition.Text = "00:00";
+                    textPositionRemaining.Text = "00:00";
+                    textBuffering.Visibility = Visibility.Collapsed;
+                    imageArtwork.Source = null;
+                    Track = null;
+
+                }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);
             }
         }
 
