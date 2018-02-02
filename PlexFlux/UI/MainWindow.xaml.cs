@@ -830,7 +830,7 @@ namespace PlexFlux.UI
         private void MediaCommands_Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             var playback = PlaybackManager.GetInstance();
-            e.CanExecute = playback.PlaybackState == NAudio.Wave.PlaybackState.Playing;
+            e.CanExecute = playback.PlaybackState == NAudio.Wave.PlaybackState.Playing || playback.PlaybackState == NAudio.Wave.PlaybackState.Paused;
         }
 
         private void MediaCommands_Stop_Executed(object sender, ExecutedRoutedEventArgs e)

@@ -67,6 +67,12 @@
                     
                     <!-- Play -->
                     <Button x:Name="buttonPlay" ToolTip="Play" Click="Play_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Stop" Click="Stop_Click" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        
                         <Viewbox Stretch="Uniform">
                             <Canvas Width="512" Height="512">
                                 <Path Data="M128,96v320l256-160L128,96L128,96z" Fill="White" />

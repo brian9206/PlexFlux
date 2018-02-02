@@ -60,9 +60,11 @@ namespace PlexFlux.Streaming
         public bool IsBuffering
         {
             get =>
-                waveProvider != null && (
-                    waveProvider.BufferedDuration < waveProvider.MinimumBufferedDuration ||
-                    waveProvider.BufferedDuration < Current
+                waveProvider == null || (
+                    waveProvider != null && (
+                        waveProvider.BufferedDuration < waveProvider.MinimumBufferedDuration ||
+                        waveProvider.BufferedDuration < Current
+                    )
                 );
         }
 
