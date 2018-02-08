@@ -194,7 +194,9 @@ namespace PlexFlux.Streaming
                         Aborted = true;
 
                         request.Abort();
-                        sourceStream.Dispose();
+
+                        if (sourceStream != null)
+                            sourceStream.Dispose();
                     }
 
                     if (waveProvider != null)

@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
@@ -27,6 +26,11 @@ namespace PlexFlux.UI
                 instance = new PlaybackControlWindow();
 
             return instance;
+        }
+
+        public static bool IsInstantiated()
+        {
+            return instance != null;
         }
         #endregion
 
@@ -74,6 +78,9 @@ namespace PlexFlux.UI
         {
             InitializeComponent();
 
+            // hide all notification
+            NotificationWindow.HideAll();
+
             // event handler
             var playback = PlaybackManager.GetInstance();
             playback.PlaybackStateChanged += Playback_PlaybackStateChanged;
@@ -89,28 +96,7 @@ namespace PlexFlux.UI
         // use Loaded event because we need the handle
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var windowHelper = new WindowInteropHelper(this);
-
-            var accent = new AccentPolicy
-            {
-                AccentState = AccentState.ACCENT_ENABLE_BLURBEHIND
-            };
-
-            var accentStructSize = Marshal.SizeOf(accent);
-
-            var accentPtr = Marshal.AllocHGlobal(accentStructSize);
-            Marshal.StructureToPtr(accent, accentPtr, false);
-
-            var data = new WindowCompositionAttributeData
-            {
-                Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
-                SizeOfData = accentStructSize,
-                Data = accentPtr
-            };
-
-            SetWindowCompositionAttribute(windowHelper.Handle, ref data);
-
-            Marshal.FreeHGlobal(accentPtr);
+            this.EnableBlur();
         }
 
         protected override void OnActivated(EventArgs e)

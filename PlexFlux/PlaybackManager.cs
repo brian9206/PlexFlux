@@ -270,6 +270,12 @@ namespace PlexFlux
             // invoke event
             StartPlaying?.Invoke(track, new EventArgs());
             PlaybackStateChanged?.Invoke(track, new EventArgs());
+
+            // show notification
+            var app = (App)Application.Current;
+
+            if (app.config.EnableNotification)
+                UI.NotificationWindow.Notify(track);
         }
 
         public void Stop()
@@ -284,6 +290,8 @@ namespace PlexFlux
 
             // invoke event
             PlaybackStateChanged?.Invoke(null, new EventArgs());
+
+            UI.NotificationWindow.HideAll();
         }
 
         private void PlayNextTrack()

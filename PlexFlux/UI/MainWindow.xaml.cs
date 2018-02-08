@@ -369,6 +369,16 @@ namespace PlexFlux.UI
 
             systemTrayIcon.Visible = true;
             Visibility = Visibility.Hidden;
+
+            // show mini player if playing music
+            var playback = PlaybackManager.GetInstance();
+
+            if (playback.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+            {
+                var playbackControlWindow = PlaybackControlWindow.GetInstance();
+                playbackControlWindow.Show();
+                playbackControlWindow.Activate();
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)

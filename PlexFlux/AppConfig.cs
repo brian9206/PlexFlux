@@ -11,6 +11,7 @@ namespace PlexFlux
     {
         public bool AllowMinimize;
         public bool DisableDiskCaching;
+        public bool EnableNotification;
 
         public string OutputDeviceID;
         public bool IsExclusive;
@@ -34,6 +35,7 @@ namespace PlexFlux
         {
             AllowMinimize = false;
             DisableDiskCaching = false;
+            EnableNotification = false;
 
             OutputDeviceID = null;
             IsExclusive = false;

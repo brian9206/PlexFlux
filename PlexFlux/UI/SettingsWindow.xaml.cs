@@ -28,6 +28,7 @@ namespace PlexFlux.UI
 
             var app = (App)Application.Current;
             checkMinimize.IsChecked = app.config.AllowMinimize;
+            checkEnableNotification.IsChecked = app.config.EnableNotification;
             checkDisableDiskCaching.IsChecked = app.config.DisableDiskCaching;
 
             // device
@@ -84,6 +85,7 @@ namespace PlexFlux.UI
 
             var app = (App)Application.Current;
             app.config.AllowMinimize = checkMinimize.IsChecked == true;
+            app.config.EnableNotification = checkEnableNotification.IsChecked == true;
             app.config.DisableDiskCaching = checkDisableDiskCaching.IsChecked == true;
             app.config.OutputDeviceID = (string)((ComboBoxItem)comboDevice.SelectedItem).Tag;
             app.config.IsExclusive = comboOutputMode.SelectedIndex == 1;

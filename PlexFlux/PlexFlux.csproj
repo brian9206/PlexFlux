@@ -129,6 +129,9 @@
       <DependentUpon>VolumeControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ItemsControlHelper.cs" />
+    <Compile Include="UI\NotificationWindow.xaml.cs">
+      <DependentUpon>NotificationWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\PlaybackControlWindow.xaml.cs">
       <DependentUpon>PlaybackControlWindow.xaml</DependentUpon>
     </Compile>
@@ -160,6 +163,7 @@
     <Compile Include="UI\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\WindowExtensions.cs" />
     <Compile Include="UpcomingManager.cs" />
     <Page Include="UI\AuthWindow.xaml">
       <SubType>Designer</SubType>
@@ -209,6 +213,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UI\NotificationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\PlaybackControlWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
