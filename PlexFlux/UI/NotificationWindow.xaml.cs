@@ -171,6 +171,9 @@ namespace PlexFlux.UI
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(10));
 
+                    if (tokenSource.IsCancellationRequested)
+                        return;
+
                     var app = (App)System.Windows.Application.Current;
 
                     Task.Factory.StartNew(CloseWithAnimation,
@@ -214,6 +217,9 @@ namespace PlexFlux.UI
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(TimeSpan.FromMilliseconds(150));
+
+                if (tokenSource.IsCancellationRequested)
+                    return;
 
                 var app = (App)System.Windows.Application.Current;
 
