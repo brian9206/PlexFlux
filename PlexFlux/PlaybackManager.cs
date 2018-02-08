@@ -58,7 +58,7 @@ namespace PlexFlux
             }
             set
             {
-                volume = value;
+                volume = value < 0 ? 0 : (value > 1 ? 1 : value);
 
                 if (provider != null)
                     provider.Volume = volume;

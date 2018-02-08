@@ -21,13 +21,8 @@ namespace PlexFlux.UI
         public SettingsWindow()
         {
             InitializeComponent();
-        }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (DesignerProperties.GetIsInDesignMode(this))
-                return;
-
+            // load config
             var runKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
             checkLaunchStartup.IsChecked = runKey.GetValueNames().Contains("PlexFlux");
 

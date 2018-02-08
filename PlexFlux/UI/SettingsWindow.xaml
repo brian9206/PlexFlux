@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Settings" Style="{StaticResource PlexFluxWindow}" DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Width="320" Height="465" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
-        MinWidth="320" MinHeight="380" Loaded="Window_Loaded">
+        MinWidth="320" MinHeight="380">
     <Window.Resources>
         <ResourceDictionary Source="Style/Settings.xaml" />
     </Window.Resources>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using PlexLib;
@@ -29,9 +30,10 @@ namespace PlexFlux.UI
             SelectedPlaylist = null;
 
             InitializeComponent();
+            Initialize();
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Initialize()
         {
             // show progress
             IsEnabled = false;
@@ -62,8 +64,10 @@ namespace PlexFlux.UI
             panelProgress.Visibility = Visibility.Hidden;
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
+            base.OnClosing(e);
+
             // prevent window is being closed when fetching server list
             if (!IsEnabled)
                 e.Cancel = true;
@@ -85,6 +89,11 @@ namespace PlexFlux.UI
             SelectedPlaylist = window.CreatedPlaylist;
             DialogResult = true;
             Close();
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            Initialize();
         }
     }
 }

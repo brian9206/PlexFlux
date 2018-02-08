@@ -41,6 +41,12 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="CSDeskBand, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSDeskBand.1.0.0\lib\net461\CSDeskBand.dll</HintPath>
+    </Reference>
+    <Reference Include="CSDeskBand.Wpf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSDeskBand.Wpf.1.0.0\lib\net461\CSDeskBand.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -74,18 +80,13 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSDeskBand\CSDeskBand.Wpf\CSDeskband.Wpf.csproj">
-      <Project>{3bee7144-7e4e-44f6-9c36-b147d15f944f}</Project>
-      <Name>CSDeskband.Wpf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSDeskBand\CSDeskBand\CSDeskband.csproj">
-      <Project>{37ecdfdd-fa85-4b91-b69f-8b53cb2a23e2}</Project>
-      <Name>CSDeskband</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PlexFlux.IPC\PlexFlux.IPC.csproj">
       <Project>{8c9f99b9-8c52-426d-b86d-505764f400d7}</Project>
       <Name>PlexFlux.IPC</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

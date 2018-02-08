@@ -16,7 +16,13 @@ namespace PlexFlux
     /// </summary>
     public partial class App : System.Windows.Application
     {
-        private static readonly Mutex appMutex = new Mutex(true, "{14B7E89A-58A5-48EE-99BD-BAB4CF5C20AF}");
+        private static readonly Mutex appMutex = new Mutex(true,
+#if DEBUG
+            "{FF3ADB00-7905-4488-90C8-79AB16DC47DC}"
+#else
+            "{14B7E89A-58A5-48EE-99BD-BAB4CF5C20AF}"
+#endif
+            );
 
         public AppConfig config;
         public PlexDeviceInfo deviceInfo;

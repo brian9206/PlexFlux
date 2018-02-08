@@ -9,6 +9,7 @@ namespace PlexFlux.UI
     {
         private NotifyIcon notifyIcon;
 
+        public event EventHandler Click;
         public event EventHandler DoubleClick;
 
         public bool Visible
@@ -26,6 +27,7 @@ namespace PlexFlux.UI
                 Visible = false
             };
 
+            notifyIcon.Click += NotifyIcon_Click;
             notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
             notifyIcon.ContextMenu = new ContextMenu();
 
@@ -55,6 +57,11 @@ namespace PlexFlux.UI
         {
             notifyIcon.Visible = false;
             notifyIcon.Dispose();
+        }
+
+        private void NotifyIcon_Click(object sender, EventArgs e)
+        {
+            Click?.Invoke(sender, e);
         }
 
         private void NotifyIcon_DoubleClick(object sender, EventArgs e)

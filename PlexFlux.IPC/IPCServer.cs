@@ -32,7 +32,13 @@ namespace PlexFlux.IPC
 
         private IPCServer()
         {
-            server = new NamedPipeServer<string>("PlexFlux_IPC_Pipe");
+            server = new NamedPipeServer<string>(
+#if DEBUG
+                "PlexFlux_IPC_Pipe_d"
+#else
+                "PlexFlux_IPC_Pipe"
+#endif
+                );
         }
 
         public void Init()
@@ -75,7 +81,7 @@ namespace PlexFlux.IPC
             server.PushMessage(xml.OuterXml);
         }
 
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -113,7 +119,7 @@ namespace PlexFlux.IPC
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-        #endregion
+#endregion
 
         public void Close()
         {

@@ -30,7 +30,13 @@ namespace PlexFlux.IPC
 
         private IPCClient()
         {
-            client = new NamedPipeClient<string>("PlexFlux_IPC_Pipe");
+            client = new NamedPipeClient<string>(
+#if DEBUG
+                "PlexFlux_IPC_Pipe_d"
+#else
+                "PlexFlux_IPC_Pipe"
+#endif
+                );
         }
 
         public void Init()

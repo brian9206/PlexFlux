@@ -7,8 +7,7 @@
         mc:Ignorable="d"
         Title="New Playlist" Style="{StaticResource PlexFluxWindow}"
         Height="150" Width="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Loaded="Window_Loaded" Closing="Window_Closing">
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />

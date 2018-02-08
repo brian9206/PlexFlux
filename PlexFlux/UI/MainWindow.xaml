@@ -9,8 +9,7 @@
         Title="PlexFlux" WindowStyle="SingleBorderWindow" ResizeMode="CanResize"
         Style="{StaticResource PlexFluxWindow}"
         Width="900" Height="600" WindowStartupLocation="CenterScreen"
-        MinWidth="600" MinHeight="400" DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Loaded="Window_Loaded" Closed="Window_Closed" Closing="Window_Closing" MouseDown="Window_MouseDown" KeyDown="Window_KeyDown" StateChanged="Window_StateChanged">
+        MinWidth="600" MinHeight="400" DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Window.Resources>
         <BitmapImage x:Key="PlayImage" UriSource="../Assets/taskbar thumb/play.png" />
@@ -75,7 +74,7 @@
         <!-- Top Bar -->
         <Grid Grid.Column="0" Grid.Row="0" Style="{StaticResource GridBar}">
             <!-- App button -->
-            <Button x:Name="buttonApp" Style="{StaticResource PlexServerButton}" Content="{Binding Path=ServerName}" Tag="{Binding Path=ServerAddress}" Click="buttonApp_Click">
+            <Button x:Name="buttonApp" Style="{StaticResource PlexServerButton}" Content="{Binding Path=ServerName}" Tag="{Binding Path=ServerAddress}" Click="AppButton_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Switch User" Click="MenuItemSwitchUser_Click" />
@@ -136,10 +135,10 @@
                     <Label Style="{StaticResource SidebarListHeader}">P L E X F L U X</Label>
 
                     <!-- Play queue -->
-                    <Button x:Name="buttonPlayQueue" Style="{StaticResource PlayQueueButton}" Click="buttonPlayQueue_Click" IsEnabled="True">
+                    <Button x:Name="buttonPlayQueue" Style="{StaticResource PlayQueueButton}" Click="PlayQueue_Click" IsEnabled="True">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Remove All" Click="buttonPlayQueue_RemoveAll_Click" />
+                                <MenuItem Header="Remove All" Click="PlayQueue_RemoveAll_Click" />
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

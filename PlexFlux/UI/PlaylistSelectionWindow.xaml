@@ -9,8 +9,7 @@
         Title="Select a playlist" Style="{StaticResource PlexFluxWindow}"
         Height="400" Width="320" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen"
         MinHeight="400" MinWidth="320"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Loaded="Window_Loaded" Closing="Window_Closing">
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -24,7 +23,7 @@
                         <ResourceDictionary Source="Style/PlaybackControl.xaml" />
                     </StackPanel.Resources>
 
-                    <Button x:Name="buttonRefresh" ToolTip="Refresh" Grid.Column="0" Click="Window_Loaded" Width="40">
+                    <Button x:Name="buttonRefresh" ToolTip="Refresh" Grid.Column="0" Click="Refresh_Click"  Width="40">
                         <Viewbox Stretch="Fill" Margin="12">
                             <Canvas Width="32" Height="32">
                                 <Path Data=" M16 2 A14 14 0 0 0 2 16 A14 14 0 0 0 16 30 A14 14 0 0 0 26 26 L 23.25 23 A10 10 0 0 1 16 26 A10 10 0 0 1 6 16 A10 10 0 0 1 16 6 A10 10 0 0 1 23.25 9 L19 13 L30 13 L30 2 L26 6 A14 14 0 0 0 16 2" Fill="White" />

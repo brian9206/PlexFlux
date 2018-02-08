@@ -129,22 +129,84 @@ namespace PlexFlux.UI
 
             // system tray
             systemTrayIcon = new SystemTrayIcon();
-            systemTrayIcon.DoubleClick += SystemTrayIcon_DoubleClick;
+            systemTrayIcon.Click += SystemTrayIcon_Click;
 
             // -startup will result in default minimized
             if (Environment.GetCommandLineArgs().Select(arg => arg.ToLower()).Contains("-startup"))
             {
                 WindowState = WindowState.Minimized;
-
-                // invoke event handler manually
-                Window_Loaded(this, new RoutedEventArgs());
-                Window_StateChanged(this, new EventArgs());
+                OnStateChanged(new EventArgs());
             }
+
+            Initialize();
         }
 
-        private void SystemTrayIcon_DoubleClick(object sender, EventArgs e)
+        private async void Initialize()
         {
-            RestoreFromSystemTray();
+            var app = (App)Application.Current;
+
+            var playQueue = PlayQueueManager.GetInstance();
+            playQueue.TrackChanged += PlayQueue_TrackChanged;
+
+            // load play queue
+            buttonPlayQueue.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+            IsLoading = true;
+            IsVolumeControlVisible = false;
+
+            var servers = await app.GetPlexServers();
+            var server = servers.Where(srv => srv.MachineIdentifier == app.config.ServerMachineIdentifier).FirstOrDefault();
+
+            if (server == null)
+                server = app.SelectPlexServer();
+            else
+                await app.ConnectToPlexServer(server);
+
+            Server = server;
+            await Refresh();
+
+            // try to load playlist to play queue
+            if (app.config.LastPlaylist != null)
+            {
+                try
+                {
+                    var playlists = await app.plexClient.GetPlaylists();
+                    var playlist = playlists.Where(pl => pl.MetadataUrl == app.config.LastPlaylist).FirstOrDefault();
+
+                    if (playlist != null)
+                        playQueue.FromTracks(await app.plexClient.GetTracks(playlist));
+                }
+                catch
+                {
+                    // suppress
+                }
+            }
+
+            IsLoading = false;
+
+            // check update
+            await Task.Factory.StartNew(async () =>
+            {
+                await Task.Delay(10 * 1000);
+
+                // check update
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var latestVersion = await app.GetLatestVersion();
+
+                if (latestVersion.Major > currentVersion.Major ||
+                    latestVersion.Minor > currentVersion.Minor ||
+                    latestVersion.Revision > currentVersion.Revision)
+                {
+                    await Task.Factory.StartNew(() => systemTrayIcon.ShowBalloonTip("New version is available. It is recommended to upgrade."), CancellationToken.None, TaskCreationOptions.None, app.uiContext);
+                }
+            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
+
+        private void SystemTrayIcon_Click(object sender, EventArgs e)
+        {
+            var playbackControlWindow = PlaybackControlWindow.GetInstance();
+            playbackControlWindow.Show();
+            playbackControlWindow.Activate();
         }
 
         private void CommandManager_RequerySuggested(object sender, EventArgs e)
@@ -294,69 +356,10 @@ namespace PlexFlux.UI
         }
         #endregion
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnStateChanged(EventArgs e)
         {
-            var app = (App)Application.Current;
+            base.OnStateChanged(e);
 
-            var playQueue = PlayQueueManager.GetInstance();
-            playQueue.TrackChanged += PlayQueue_TrackChanged;
-
-            // load play queue
-            buttonPlayQueue_Click(buttonPlayQueue, e);
-
-            IsLoading = true;
-            IsVolumeControlVisible = false;
-
-            var servers = await app.GetPlexServers();
-            var server = servers.Where(srv => srv.MachineIdentifier == app.config.ServerMachineIdentifier).FirstOrDefault();
-
-            if (server == null)
-                server = app.SelectPlexServer();
-            else
-                await app.ConnectToPlexServer(server);
-
-            Server = server;
-            await Refresh();
-
-            // try to load playlist to play queue
-            if (app.config.LastPlaylist != null)
-            {
-                try
-                {
-                    var playlists = await app.plexClient.GetPlaylists();
-                    var playlist = playlists.Where(pl => pl.MetadataUrl == app.config.LastPlaylist).FirstOrDefault();
-
-                    if (playlist != null)
-                        playQueue.FromTracks(await app.plexClient.GetTracks(playlist));
-                }
-                catch
-                {
-                    // suppress
-                }
-            }
-
-            IsLoading = false;
-
-            // check update
-            await Task.Factory.StartNew(async () =>
-            {
-                await Task.Delay(10 * 1000);
-
-                // check update
-                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-                var latestVersion = await app.GetLatestVersion();
-
-                if (latestVersion.Major > currentVersion.Major ||
-                    latestVersion.Minor > currentVersion.Minor ||
-                    latestVersion.Revision > currentVersion.Revision)
-                {
-                    await Task.Factory.StartNew(() => systemTrayIcon.ShowBalloonTip("New version is available. It is recommended to upgrade."), CancellationToken.None, TaskCreationOptions.None, app.uiContext);
-                }
-            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        }
-
-        private void Window_StateChanged(object sender, EventArgs e)
-        {
             if (WindowState != WindowState.Minimized)
                 return;
 
@@ -368,18 +371,38 @@ namespace PlexFlux.UI
             Visibility = Visibility.Hidden;
         }
 
-        private void PlayQueue_TrackChanged(object sender, EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            CommandManager.InvalidateRequerySuggested();
+            base.OnClosing(e);
+
+            var app = (App)Application.Current;
+            app.config.WindowSizeW = (int)Width;
+            app.config.WindowSizeH = (int)Height;
+
+            app.config.WindowPosX = (int)Left;
+            app.config.WindowPosY = (int)Top;
         }
 
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
+            base.OnClosed(e);
+
+            systemTrayIcon.Dispose();
+
+            var app = (App)Application.Current;
+            app.Shutdown();
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
             IsVolumeControlVisible = false;
         }
 
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
+            base.OnKeyDown(e);
+
             if (e.IsRepeat)
                 return;
 
@@ -396,26 +419,13 @@ namespace PlexFlux.UI
 
             }
         }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
+        
+        private void PlayQueue_TrackChanged(object sender, EventArgs e)
         {
-            var app = (App)Application.Current;
-            app.config.WindowSizeW = (int)Width;
-            app.config.WindowSizeH = (int)Height;
-
-            app.config.WindowPosX = (int)Left;
-            app.config.WindowPosY = (int)Top;
+            CommandManager.InvalidateRequerySuggested();
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            systemTrayIcon.Dispose();
-
-            var app = (App)Application.Current;
-            app.Shutdown();
-        }
-
-        private void buttonApp_Click(object sender, RoutedEventArgs e)
+        
+        private void AppButton_Click(object sender, RoutedEventArgs e)
         {
             buttonApp.ContextMenu.PlacementTarget = buttonApp;
             buttonApp.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
@@ -435,7 +445,7 @@ namespace PlexFlux.UI
             app.myPlexClient = new MyPlexClient(app.deviceInfo);
 
             // reload
-            Window_Loaded(sender, e);
+            Initialize();
         }
 
         private async void MenuItemSwitchServer_Click(object sender, RoutedEventArgs e)
@@ -527,12 +537,12 @@ namespace PlexFlux.UI
             Close();
         }
 
-        private void buttonPlayQueue_Click(object sender, RoutedEventArgs e)
+        private void PlayQueue_Click(object sender, RoutedEventArgs e)
         {
             GoToPlayQueue();
         }
 
-        private void buttonPlayQueue_RemoveAll_Click(object sender, RoutedEventArgs e)
+        private void PlayQueue_RemoveAll_Click(object sender, RoutedEventArgs e)
         {
             var playQueue = PlayQueueManager.GetInstance();
             playQueue.RemoveAll();

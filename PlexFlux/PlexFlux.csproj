@@ -129,6 +129,9 @@
       <DependentUpon>VolumeControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ItemsControlHelper.cs" />
+    <Compile Include="UI\PlaybackControlWindow.xaml.cs">
+      <DependentUpon>PlaybackControlWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\NewPlaylistWindow.xaml.cs">
       <DependentUpon>NewPlaylistWindow.xaml</DependentUpon>
     </Compile>
@@ -206,6 +209,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UI\PlaybackControlWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\NewPlaylistWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

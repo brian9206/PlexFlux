@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using PlexLib;
 
@@ -19,6 +20,8 @@ namespace PlexFlux.UI
         {
             InitializeComponent();
             CreatedPlaylist = null;
+
+            textName.Focus();
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
@@ -53,13 +56,10 @@ namespace PlexFlux.UI
             }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            textName.Focus();
-        }
+            base.OnClosing(e);
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
             if (!IsEnabled)
                 e.Cancel = true;
         }
