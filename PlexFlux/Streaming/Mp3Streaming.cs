@@ -75,6 +75,9 @@ namespace PlexFlux.Streaming
             waveProvider = null;
             instantiateWaitHandle = new ManualResetEvent(false);
             Current = TimeSpan.Zero;
+
+            // set timeout
+            this.request.Timeout = 10 * 1000;
         }
 
         public IWaveProvider Start()
