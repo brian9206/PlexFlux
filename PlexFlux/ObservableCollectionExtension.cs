@@ -6,7 +6,7 @@ using System.Linq;
 namespace PlexFlux
 {
     // simple ObservableCollection helper
-    public static class ObservableCollectionExtension
+    internal static class ObservableCollectionExtension
     {
         /// <summary>
         /// Add items in an IEnumerable after clearing the collection.

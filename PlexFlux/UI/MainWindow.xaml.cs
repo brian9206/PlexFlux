@@ -138,15 +138,17 @@ namespace PlexFlux.UI
                 OnStateChanged(new EventArgs());
             }
 
+            // event
+            var playQueue = PlayQueueManager.GetInstance();
+            playQueue.TrackChanged += PlayQueue_TrackChanged;
+
             Initialize();
         }
 
         private async void Initialize()
         {
             var app = (App)Application.Current;
-
             var playQueue = PlayQueueManager.GetInstance();
-            playQueue.TrackChanged += PlayQueue_TrackChanged;
 
             // load play queue
             buttonPlayQueue.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -159,8 +161,8 @@ namespace PlexFlux.UI
 
             if (server == null)
                 server = app.SelectPlexServer();
-            else
-                await app.ConnectToPlexServer(server);
+
+            await app.ConnectToPlexServer(server);
 
             Server = server;
             await Refresh();
@@ -252,6 +254,7 @@ namespace PlexFlux.UI
             WindowState = WindowState.Normal;
 
             SystemCommands.RestoreWindow(this);
+            Activate();
         }
 
         public void GoToPlayQueue()
@@ -307,6 +310,10 @@ namespace PlexFlux.UI
             };
 
             await Task.WhenAll(tasks);
+
+            // workaround: refresh datacontext to fix #5
+            DataContext = null;
+            DataContext = this;
         }
 
         public async Task FetchPlaylists()
@@ -785,14 +792,12 @@ namespace PlexFlux.UI
             var page = frame.Content;
             var playQueue = PlayQueueManager.GetInstance();
 
-            if (page is Pages.BrowsePlaylist)
+            if (page is Pages.BrowsePlaylist browsePlaylist)
             {
-                var browsePlaylist = (Pages.BrowsePlaylist)page;
                 e.CanExecute = playback.PlaybackState != NAudio.Wave.PlaybackState.Playing && !browsePlaylist.IsLoading && browsePlaylist.Tracks.Count > 0;
             }
-            else if (page is Pages.BrowseAlbum)
+            else if (page is Pages.BrowseAlbum browseAlbum)
             {
-                var browseAlbum = (Pages.BrowseAlbum)page;
                 e.CanExecute = playback.PlaybackState != NAudio.Wave.PlaybackState.Playing && !browseAlbum.IsLoading && browseAlbum.TracksData.Count > 0;
             }
             else

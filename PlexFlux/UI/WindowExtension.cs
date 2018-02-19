@@ -5,7 +5,7 @@ using System.Windows.Interop;
 
 namespace PlexFlux.UI
 {
-    public static class WindowExtensions
+    internal static class WindowExtension
     {
         #region "Win32"
         private enum AccentState

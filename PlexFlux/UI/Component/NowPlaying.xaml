@@ -98,7 +98,7 @@
                     <TextBlock x:Name="textPositionRemaining" Grid.Column="2" TextAlignment="Right">00:00</TextBlock>
                 </Grid>
 
-                <TextBlock TextWrapping="NoWrap" 
+                <TextBlock TextWrapping="Wrap" 
                        Foreground="#CCFFFFFF" 
                        TextAlignment="Center" 
                        TextTrimming="CharacterEllipsis"

@@ -71,7 +71,13 @@ namespace PlexFlux
                     string encrypted = SG.Algoritma.Cipher.Encrypt(rawXml, WindowsIdentity.GetCurrent().User.Value);
 
                     // save to file
-                    var configDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PlexFlux");
+                    var configDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+#if DEBUG
+                        "PlexFlux_d"
+#else
+                        "PlexFlux"
+#endif
+                        );
 
                     if (!Directory.Exists(configDir))
                         Directory.CreateDirectory(configDir);
@@ -85,7 +91,14 @@ namespace PlexFlux
         public static AppConfig Load()
         {
             // load from file
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PlexFlux", "config.dat");
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+#if DEBUG
+                "PlexFlux_d"
+#else
+                "PlexFlux"
+#endif
+                , "config.dat");
+
             var encrypted = File.ReadAllText(path);
 
             string rawXml = SG.Algoritma.Cipher.Decrypt(encrypted, WindowsIdentity.GetCurrent().User.Value);
@@ -96,6 +109,6 @@ namespace PlexFlux
                 return serializer.Deserialize(reader) as AppConfig;
             }
         }
-        #endregion
+#endregion
     }
 }

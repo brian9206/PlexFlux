@@ -252,6 +252,8 @@ namespace PlexFlux
                     randomList.Add(i);
                 }
 
+                randomList.Shuffle();
+
                 var rng = new Random();
 
                 if (randomList.Count == 0)
