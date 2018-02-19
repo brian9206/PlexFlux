@@ -95,7 +95,7 @@ namespace PlexFlux.UI.Component
 
             bitmap.BeginInit();
             bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(Track.Thumb, (int)panelArtwork.ActualWidth, (int)panelArtwork.ActualHeight);
-            bitmap.CacheOption = BitmapCacheOption.OnDemand;
+            bitmap.CacheOption = BitmapCacheOption.Default;
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;

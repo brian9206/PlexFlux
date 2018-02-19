@@ -172,6 +172,8 @@
                                             <MenuItem Header="Play All" Click="PlaylistSidebarItem_PlayAll_Click" />
                                             <MenuItem Header="Add to Play Queue" Click="PlaylistSidebarItem_AddToPlayQueue_Click" />
                                             <Separator />
+                                            <MenuItem Header="Open in Web Browser" Click="PlaylistSidebarItem_OpenInWebBrowser_Click" />
+                                            <Separator />
                                             <MenuItem Header="Delete Playlist" Click="PlaylistSidebarItem_Delete_Click"/>
                                         </ContextMenu>
                                     </component:PlaylistSidebarItem.ContextMenu>
@@ -207,6 +209,8 @@
                                     <component:LibrarySidebarItem.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="Scan Library" Click="LibrarySidebarItem_Scan_Click" />
+                                            <Separator />
+                                            <MenuItem Header="Open in Web Browser" Click="LibrarySidebarItem_OpenInWebBrowser_Click" />
                                         </ContextMenu>
                                     </component:LibrarySidebarItem.ContextMenu>
                                 </component:LibrarySidebarItem>

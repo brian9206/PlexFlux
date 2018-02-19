@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -96,7 +98,7 @@ namespace PlexFlux.UI.Pages
 
             bitmap.BeginInit();
             bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(Album.Thumb, (int)panelArtwork.ActualWidth, (int)panelArtwork.ActualHeight);
-            bitmap.CacheOption = BitmapCacheOption.OnDemand;
+            bitmap.CacheOption = BitmapCacheOption.Default;
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;
@@ -198,6 +200,14 @@ namespace PlexFlux.UI.Pages
 
             var mainWindow = MainWindow.GetInstance();
             mainWindow.GoToPlayQueue();
+        }
+
+        private void MenuItem_OpenInWebBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var app = (App)Application.Current;
+
+            Process.Start("explorer.exe",
+                "\"https://app.plex.tv/desktop#!/server/" + HttpUtility.UrlEncode(app.plexConnection.Server.MachineIdentifier) + "/details?key=" + HttpUtility.UrlEncode(Album.MetadataUrl.Replace("/children", string.Empty)) + "\"");
         }
 
         private void MenuItem_AddToPlayQueue_Click(object sender, RoutedEventArgs e)

@@ -70,6 +70,8 @@
                                 <ContextMenu>
                                     <MenuItem Header="Delete from playlist" Click="DeleteFromPlaylist_Click" />
                                     <Separator />
+                                    <MenuItem Header="Open in Web Browser" Click="OpenInWebBrowser_Click" />
+                                    <Separator />
                                     <MenuItem Header="Play" Click="Play_Click" />
                                     <MenuItem Header="Add to Play Queue" Click="AddToPlayQueue_Click" />
                                     <MenuItem Header="Add to Upcomings" Click="AddToUpcomings_Click" />

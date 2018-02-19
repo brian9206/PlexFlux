@@ -135,6 +135,8 @@
                             <ContextMenu>
                                 <MenuItem Header="Play" Click="MenuItem_Play_Click"/>
                                 <Separator />
+                                <MenuItem Header="Open in Web Browser" Click="MenuItem_OpenInWebBrowser_Click" />
+                                <Separator />
                                 <MenuItem Header="Add to Play Queue" Click="MenuItem_AddToPlayQueue_Click" />
                                 <MenuItem Header="Add to Upcomings" Click="MenuItem_AddToUpcomings_Click" />
                                 <Separator />

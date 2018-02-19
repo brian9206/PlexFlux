@@ -1,13 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using PlexLib;
-using System.Net;
-using System.ComponentModel;
+using System.Web;
 using GongSolutions.Wpf.DragDrop;
+using PlexLib;
 
 namespace PlexFlux.UI.Pages
 {
@@ -210,6 +212,15 @@ namespace PlexFlux.UI.Pages
 
             var upcomings = UpcomingManager.GetInstance();
             upcomings.Push(track);
+        }
+
+        private void OpenInWebBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var track = (PlexTrack)((MenuItem)e.Source).DataContext;
+            var app = (App)Application.Current;
+
+            Process.Start("explorer.exe",
+                "\"https://app.plex.tv/desktop#!/server/" + HttpUtility.UrlEncode(app.plexConnection.Server.MachineIdentifier) + "/details?key=" + HttpUtility.UrlEncode(track.Album.MetadataUrl.Replace("/children", string.Empty)) + "\"");
         }
     }
 }

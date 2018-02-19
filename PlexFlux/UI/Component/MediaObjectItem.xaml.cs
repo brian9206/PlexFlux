@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
@@ -58,7 +60,7 @@ namespace PlexFlux.UI.Component
 
             bitmap.BeginInit();
             bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(MediaObject.Thumb, (int)ActualWidth, (int)ActualHeight);
-            bitmap.CacheOption = BitmapCacheOption.OnDemand;
+            bitmap.CacheOption = BitmapCacheOption.Default;
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;
@@ -137,6 +139,20 @@ namespace PlexFlux.UI.Component
             {
                 MessageBox.Show("Could not fetch data from remote server.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void MenuItem_OpenInWebBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var app = (App)Application.Current;
+
+            IPlexMediaObject mediaObject = MediaObject;
+
+            // workaround: Plex Web Client does not support displaying track details so we navigate to its album instead of the actual track
+            if (mediaObject is PlexTrack track)
+                mediaObject = track.Album;
+
+            Process.Start("explorer.exe",
+                "\"https://app.plex.tv/desktop#!/server/" + HttpUtility.UrlEncode(app.plexConnection.Server.MachineIdentifier) + "/details?key=" + HttpUtility.UrlEncode(mediaObject.MetadataUrl.Replace("/children", string.Empty)) + "\"");
         }
 
         private async void MenuItem_AddToPlayQueue_Click(object sender, RoutedEventArgs e)

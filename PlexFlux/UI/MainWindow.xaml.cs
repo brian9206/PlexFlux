@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Net;
 using System.Reflection;
 using System.Diagnostics;
+using System.Web;
 using PlexLib;
 
 namespace PlexFlux.UI
@@ -540,7 +541,7 @@ namespace PlexFlux.UI
 
             if (update)
             {
-                Process.Start("explorer.exe", "https://github.com/brian9206/PlexFlux/releases");
+                Process.Start("explorer.exe", "\"https://github.com/brian9206/PlexFlux/releases\"");
             }
         }
 
@@ -676,6 +677,29 @@ namespace PlexFlux.UI
             }
         }
 
+        private void PlaylistSidebarItem_OpenInWebBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var app = (App)Application.Current;
+
+            PlexPlaylist playlist = null;
+            var dataContext = ((FrameworkElement)e.Source).DataContext;
+
+            if (dataContext is PlexPlaylist)
+            {
+                playlist = (PlexPlaylist)dataContext;
+            }
+            else if (dataContext is Pages.BrowsePlaylist)
+            {
+                playlist = ((Pages.BrowsePlaylist)dataContext).Playlist;
+            }
+
+            if (playlist == null)
+                return;
+
+            Process.Start("explorer.exe",
+                "\"https://app.plex.tv/desktop#!/server/" + HttpUtility.UrlEncode(app.plexConnection.Server.MachineIdentifier) + "/playlist?key=" + HttpUtility.UrlEncode(playlist.MetadataUrl.Replace("/items", string.Empty)) + "\"");
+        }
+
         private async void PlaylistSidebarItem_Delete_Click(object sender, RoutedEventArgs e)
         {
             var app = (App)Application.Current;
@@ -770,6 +794,15 @@ namespace PlexFlux.UI
                 GoToPlayQueue();
                 IsLoading = false;
             }
+        }
+
+        private void LibrarySidebarItem_OpenInWebBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var library = ((FrameworkElement)e.Source).DataContext as PlexLibrary;
+            var app = (App)Application.Current;
+
+            Process.Start("explorer.exe",
+                "\"https://app.plex.tv/desktop#!/server/" + HttpUtility.UrlEncode(app.plexConnection.Server.MachineIdentifier) + "?key=" + HttpUtility.UrlEncode("/library/sections/" + library.Key) + "\"");
         }
 
         // commands

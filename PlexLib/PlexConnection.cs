@@ -14,9 +14,14 @@ namespace PlexLib
         private PlexServer server;
         private PlexDeviceInfo deviceInfo;
 
+        public PlexServer Server
+        {
+            get => server;
+        }
+
         public PlexDeviceInfo DeviceInfo
         {
-            get { return deviceInfo; }
+            get => deviceInfo;
         }
 
         public PlexConnection(PlexDeviceInfo deviceInfo, PlexServer server)

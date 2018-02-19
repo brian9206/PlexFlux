@@ -69,6 +69,8 @@
                                 <ContextMenu>
                                     <MenuItem Header="Remove from Play Queue" Click="RemoveFromPlayQueue_Click" />
                                     <Separator />
+                                    <MenuItem Header="Open in Web Browser" Click="OpenInWebBrowser_Click" />
+                                    <Separator />
                                     <MenuItem Header="Play" Click="Play_Click" />
                                     <MenuItem Header="Add to Upcomings" Click="PlayAfter_Click" />
                                 </ContextMenu>

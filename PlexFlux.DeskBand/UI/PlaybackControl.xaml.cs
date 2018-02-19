@@ -154,7 +154,7 @@ namespace PlexFlux.DeskBand.UI
                             BitmapImage bitmap = new BitmapImage();
                             bitmap.BeginInit();
                             bitmap.UriSource = new Uri(messageNode.SelectSingleNode("artwork").InnerText, UriKind.Absolute);
-                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmap.CacheOption = BitmapCacheOption.Default;
                             bitmap.EndInit();
 
                             imageArtwork.Source = bitmap;
