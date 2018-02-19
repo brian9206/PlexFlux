@@ -49,7 +49,7 @@
 
             <!-- Artwork -->
             <Grid Margin="3" Background="Black">
-                <Image x:Name="imageArtwork" Stretch="Fill" />
+                <Image x:Name="imageArtwork" Stretch="UniformToFill" />
 
                 <Viewbox x:Name="imageArtworkNone" Stretch="Fill" Margin="8">
                     <Canvas Width="50" Height="50">
