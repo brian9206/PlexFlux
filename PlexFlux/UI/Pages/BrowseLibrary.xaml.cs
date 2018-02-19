@@ -160,6 +160,11 @@ namespace PlexFlux.UI.Pages
                 var mainWindow = MainWindow.GetInstance();
                 mainWindow.Frame.Navigate(browseAlbum);
             }
+
+            else
+            {
+                mediaObjectItem.OpenContextMenu();
+            }
         }
     }
 }

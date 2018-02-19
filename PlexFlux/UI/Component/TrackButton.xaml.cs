@@ -108,6 +108,14 @@ namespace PlexFlux.UI.Component
                 bitmap.EndInit();
 
                 imageArtwork.Source = bitmap;
+
+                imageArtwork.Visibility = Visibility.Visible;
+                imageArtworkNone.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                imageArtwork.Visibility = Visibility.Collapsed;
+                imageArtworkNone.Visibility = Visibility.Visible;
             }
 
             var playbackManager = PlaybackManager.GetInstance();

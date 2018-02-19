@@ -173,19 +173,34 @@ namespace PlexFlux.UI
                     sliderPosition.IsEnabled = false;
 
                     imageArtwork.Source = null;
+
+                    imageArtwork.Visibility = Visibility.Collapsed;
+                    imageArtworkNone.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     Title = playback.Track.Title + " - " + playback.Track.Artist.Title;
 
                     // load artwork
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(playback.Track.Thumb, 50, 50);
-                    bitmap.CacheOption = BitmapCacheOption.OnDemand;
-                    bitmap.EndInit();
+                    if (playback.Track.Thumb == null)
+                    {
+                        imageArtwork.Visibility = Visibility.Collapsed;
+                        imageArtworkNone.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(playback.Track.Thumb, 50, 50);
+                        bitmap.CacheOption = BitmapCacheOption.OnDemand;
+                        bitmap.EndInit();
 
-                    imageArtwork.Source = bitmap;
+                        imageArtwork.Source = bitmap;
+
+                        imageArtwork.Visibility = Visibility.Visible;
+                        imageArtworkNone.Visibility = Visibility.Collapsed;
+                    }
+
                 }
 
                 buttonPlay.Visibility = playback.PlaybackState == NAudio.Wave.PlaybackState.Playing ? Visibility.Collapsed : Visibility.Visible;

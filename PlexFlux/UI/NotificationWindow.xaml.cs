@@ -63,13 +63,24 @@ namespace PlexFlux.UI
             // load artwork
             var app = (App)System.Windows.Application.Current;
 
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(track.Thumb, 50, 50);
-            bitmap.CacheOption = BitmapCacheOption.OnDemand;
-            bitmap.EndInit();
+            if (track.Thumb == null)
+            {
+                imageArtwork.Visibility = Visibility.Collapsed;
+                imageArtworkNone.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = app.plexClient.GetPhotoTranscodeUrl(track.Thumb, 50, 50);
+                bitmap.CacheOption = BitmapCacheOption.OnDemand;
+                bitmap.EndInit();
 
-            imageArtwork.Source = bitmap;
+                imageArtwork.Source = bitmap;
+
+                imageArtwork.Visibility = Visibility.Visible;
+                imageArtworkNone.Visibility = Visibility.Collapsed;
+            }
 
             var playback = PlaybackManager.GetInstance();
             playback.PlaybackTick += Playback_PlaybackTick;

@@ -84,6 +84,8 @@ namespace PlexFlux.UI.Pages
             if (Artist == null || Artist.Thumb == null)
             {
                 imageArtwork.Source = null;
+                imageArtwork.Visibility = Visibility.Collapsed;
+                imageArtworkNone.Visibility = Artist != null && Artist.Thumb == null ? Visibility.Visible : Visibility.Collapsed;
                 return;
             }
 
@@ -98,6 +100,9 @@ namespace PlexFlux.UI.Pages
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;
+
+            imageArtwork.Visibility = Visibility.Visible;
+            imageArtworkNone.Visibility = Visibility.Collapsed;
         }
 
         private void Bitmap_DownloadCompleted(object sender, EventArgs e)

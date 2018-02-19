@@ -48,6 +48,7 @@ namespace PlexFlux.UI.Component
             Upcomings = new ObservableCollection<PlexTrack>();
             InitializeComponent();
             artworkResizeTokenSource = new CancellationTokenSource();
+            imageArtworkNone.Visibility = Visibility.Collapsed;
         }
 
         #region "IDropTarget implementation"
@@ -82,6 +83,8 @@ namespace PlexFlux.UI.Component
             if (Track == null || Track.Thumb == null)
             {
                 imageArtwork.Source = null;
+                imageArtwork.Visibility = Visibility.Collapsed;
+                imageArtworkNone.Visibility = Track != null && Track.Thumb == null ? Visibility.Visible : Visibility.Collapsed;
                 return;
             }
 
@@ -96,6 +99,9 @@ namespace PlexFlux.UI.Component
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;
+
+            imageArtwork.Visibility = Visibility.Visible;
+            imageArtworkNone.Visibility = Visibility.Collapsed;
         }
 
         private void Bitmap_DownloadCompleted(object sender, EventArgs e)
@@ -232,6 +238,8 @@ namespace PlexFlux.UI.Component
                     textPositionRemaining.Text = "00:00";
                     textBuffering.Visibility = Visibility.Collapsed;
                     imageArtwork.Source = null;
+                    imageArtwork.Visibility = Visibility.Collapsed;
+                    imageArtworkNone.Visibility = Visibility.Collapsed;
                     Track = null;
 
                 }, CancellationToken.None, TaskCreationOptions.None, app.uiContext);

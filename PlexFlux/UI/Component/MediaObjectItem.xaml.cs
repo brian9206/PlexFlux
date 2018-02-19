@@ -46,6 +46,8 @@ namespace PlexFlux.UI.Component
             if (MediaObject == null || MediaObject.Thumb == null)
             {
                 imageArtwork.Source = null;
+                imageArtwork.Visibility = Visibility.Collapsed;
+                imageArtworkNone.Visibility = MediaObject != null && MediaObject.Thumb == null ? Visibility.Visible : Visibility.Collapsed;
                 return;
             }
 
@@ -60,6 +62,9 @@ namespace PlexFlux.UI.Component
             bitmap.EndInit();
 
             imageArtwork.Source = bitmap;
+
+            imageArtwork.Visibility = Visibility.Visible;
+            imageArtworkNone.Visibility = Visibility.Collapsed;
         }
 
         private async Task<PlexTrack[]> GetTracksByMediaObject()
@@ -106,6 +111,11 @@ namespace PlexFlux.UI.Component
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Click?.Invoke(this, e);
+        }
+
+        public void OpenContextMenu()
+        {
+            button.ContextMenu.IsOpen = true;
         }
 
         // menu item handler
