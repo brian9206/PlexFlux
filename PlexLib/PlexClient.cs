@@ -4,13 +4,19 @@ using System.Xml;
 using System.IO;
 using System.Collections.Specialized;
 using System.Web;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace PlexLib
 {
     public class PlexClient
     {
+        public enum PlayingState
+        {
+            Playing,
+            Stopped,
+            Paused
+        }
+
         private PlexConnection connection;
 
         public PlexClient(PlexConnection connection)
@@ -234,6 +240,41 @@ namespace PlexLib
         public async Task ScanLibrary(PlexLibrary library)
         {
             await connection.RequestServer("/library/sections/" + library.Key + "/refresh");
+        }
+
+        public async Task SyncTimeline(PlexTrack track, PlayingState state, int time)
+        {
+            var parts = track.MetadataUrl.Split('/');
+
+            var xml = await connection.RequestXml("/:/timeline", new NameValueCollection()
+            {
+                { "ratingKey", parts[parts.Length - 1] },
+                { "key", track.MetadataUrl },
+                { "playQueueItemID", "0" },
+                { "state", new Func<string>(() => 
+                    {
+                        switch (state)
+                        {
+                            case PlayingState.Playing:
+                                return "playing";
+
+                            case PlayingState.Paused:
+                                return "paused";
+
+                            case PlayingState.Stopped:
+                                return "stopped";
+
+                            default:
+                                return null;
+                        }
+                    }
+                )() },
+                { "hasMDE", "1" },
+                { "time", (time * 1000).ToString() },
+                { "duration", (track.Duration * 1000).ToString() },
+                { "X-Plex-Session-Identifier", connection.DeviceInfo.ClientIdentifier }
+            }, "POST");
+
         }
 
         public Uri GetPhotoTranscodeUrl(string url, int width, int height, bool minSize = true)

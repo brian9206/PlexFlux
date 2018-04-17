@@ -140,10 +140,17 @@ namespace PlexFlux
             get => streaming == null || streaming.IsBuffering;
         }
 
+        public int PlayQueueItemID
+        {
+            get;
+            set;
+        }
+
         private PlaybackManager()
         {
             initEvent = new AutoResetEvent(false);
             Track = null;
+            PlayQueueItemID = 0;
 
             // restore config
             try
@@ -205,6 +212,8 @@ namespace PlexFlux
                 pauseAfterInit = false;
                 initEvent.Set();
 
+                int sync = 1;
+
                 // stop after playback is complete
                 while (waveOut != null && waveOut.PlaybackState != PlaybackState.Stopped)
                 {
@@ -218,6 +227,16 @@ namespace PlexFlux
                     }
 
                     Thread.Sleep(250);
+
+                    // sync every 10 secs
+                    if (sync % (10 * 1000 / 250) == 0)
+                    {
+                        sync = 0;
+                        SyncTimeline();
+                    }
+
+                    sync++;
+
                 }
             });
         }
@@ -276,6 +295,39 @@ namespace PlexFlux
 
             if (app.config.EnableNotification)
                 UI.NotificationWindow.Notify(track);
+
+            SyncTimeline();
+        }
+
+        public async void SyncTimeline()
+        {
+            try
+            {
+                var app = (App)Application.Current;
+
+                PlexClient.PlayingState playingState;
+
+                switch (PlaybackState)
+                {
+                    case PlaybackState.Playing:
+                        playingState = PlexClient.PlayingState.Playing;
+                        break;
+
+                    case PlaybackState.Paused:
+                        playingState = PlexClient.PlayingState.Paused;
+                        break;
+
+                    default:
+                        playingState = PlexClient.PlayingState.Stopped;
+                        break;
+
+                }
+
+                await app.plexClient.SyncTimeline(Track, playingState, (int)Position * 1000);
+            }
+            catch
+            {
+            }
         }
 
         public void Stop()
@@ -286,6 +338,7 @@ namespace PlexFlux
 
             // reset!
             Reset();
+            SyncTimeline();
             Track = null;
 
             // invoke event
@@ -349,6 +402,7 @@ namespace PlexFlux
             waveOut.Pause();
 
             PlaybackStateChanged?.Invoke(Track, new EventArgs());
+            SyncTimeline();
         }
 
         public void Resume()
@@ -362,6 +416,7 @@ namespace PlexFlux
             waveOut.Play();
 
             PlaybackStateChanged?.Invoke(Track, new EventArgs());
+            SyncTimeline();
         }
     }
 }
