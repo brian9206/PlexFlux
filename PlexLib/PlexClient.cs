@@ -250,7 +250,6 @@ namespace PlexLib
             {
                 { "ratingKey", parts[parts.Length - 1] },
                 { "key", track.MetadataUrl },
-                { "playQueueItemID", "0" },
                 { "state", new Func<string>(() => 
                     {
                         switch (state)

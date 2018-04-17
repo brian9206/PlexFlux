@@ -140,17 +140,10 @@ namespace PlexFlux
             get => streaming == null || streaming.IsBuffering;
         }
 
-        public int PlayQueueItemID
-        {
-            get;
-            set;
-        }
-
         private PlaybackManager()
         {
             initEvent = new AutoResetEvent(false);
             Track = null;
-            PlayQueueItemID = 0;
 
             // restore config
             try

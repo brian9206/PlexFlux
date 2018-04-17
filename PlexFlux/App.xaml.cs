@@ -90,7 +90,7 @@ namespace PlexFlux
             playback.Stop();
             playback.Reset();
 
-            base.OnExit(e);
+            //base.OnExit(e);
             Environment.Exit(e.ApplicationExitCode);
         }
 
