@@ -242,7 +242,7 @@ namespace PlexLib
             await connection.RequestServer("/library/sections/" + library.Key + "/refresh");
         }
 
-        public async Task SyncTimeline(PlexTrack track, PlayingState state, int time)
+        public async Task SyncTimeline(PlexTrack track, PlayingState state)
         {
             var parts = track.MetadataUrl.Split('/');
 
@@ -269,8 +269,6 @@ namespace PlexLib
                     }
                 )() },
                 { "hasMDE", "1" },
-                { "time", (time * 1000).ToString() },
-                { "duration", (track.Duration * 1000).ToString() },
                 { "X-Plex-Session-Identifier", connection.DeviceInfo.ClientIdentifier }
             }, "POST");
 

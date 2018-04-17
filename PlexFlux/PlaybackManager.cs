@@ -316,7 +316,7 @@ namespace PlexFlux
 
                 }
 
-                await app.plexClient.SyncTimeline(Track, playingState, (int)Position * 1000);
+                await app.plexClient.SyncTimeline(Track, playingState);
             }
             catch
             {
