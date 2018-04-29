@@ -300,5 +300,16 @@ namespace PlexLib
                 { "directPlay", "0" }
             });
         }
+
+        public async Task<int> GetSamplingRate(PlexTrack track)
+        {
+            var response = await connection.RequestXml(track.MetadataUrl);
+            var streamNode = response.SelectSingleNode("/MediaContainer/Track/Media/Part/Stream");
+
+            if (streamNode == null || streamNode.Attributes == null || streamNode.Attributes["samplingRate"] == null)
+                return 0;
+
+            return int.Parse(streamNode.Attributes["samplingRate"].Value);
+        }
     }
 }

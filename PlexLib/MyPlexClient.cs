@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Net;
 using System.Xml;
 using System.IO;
@@ -62,7 +63,7 @@ namespace PlexLib
 
         public async Task<PlexServer[]> GetServers()
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://plex.tv/pms/servers.xml?X-Plex-Token=" + HttpUtility.UrlEncode(AuthenticationToken));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://plex.tv/devices.xml?X-Plex-Token=" + HttpUtility.UrlEncode(AuthenticationToken));
             request.UserAgent = deviceInfo.UserAgent;
 
             var response = await request.GetResponseAsync();
@@ -75,16 +76,43 @@ namespace PlexLib
 
             var retval = new List<PlexServer>();
 
-            foreach (XmlNode server in xml.SelectNodes("/MediaContainer/Server"))
+            foreach (XmlNode device in xml.SelectNodes("/MediaContainer/Device"))
             {
+                // search for PMS only
+                if (device.Attributes["product"] != null && device.Attributes["product"].Value != "Plex Media Server")
+                    continue;
+
+                // find connection
+                string address = null;
+                var localAddresses = new List<string>();
+
+                // rfc1918 regex
+                var rfc1918 = new Regex(@"(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)");
+
+                foreach (XmlNode connection in device.SelectNodes("Connection"))
+                {
+                    Uri uri = new Uri(connection.Attributes["uri"].Value);
+
+                    if (uri.AbsolutePath != "/")
+                        continue;
+
+                    // check rfc1918
+                    if (rfc1918.Match(uri.Host).Success)
+                    {
+                        localAddresses.Add(uri.ToString());
+                    }
+                    else if (address == null)
+                    {
+                        address = uri.ToString();
+                    }
+                }
+
                 var plexServer = new PlexServer();
-                plexServer.Name = server.Attributes["name"].InnerText;
-                plexServer.Address = server.Attributes["address"].InnerText;
-                plexServer.LocalAddressList = server.Attributes["localAddresses"].InnerText.Split(',');
-                plexServer.Port = int.Parse(server.Attributes["port"].InnerText);
-                plexServer.Scheme = server.Attributes["scheme"].InnerText;
-                plexServer.AccessToken = server.Attributes["accessToken"].InnerText;
-                plexServer.MachineIdentifier = server.Attributes["machineIdentifier"].InnerText;
+                plexServer.Name = device.Attributes["name"].InnerText;
+                plexServer.Address = address;
+                plexServer.LocalAddressList = localAddresses.ToArray();
+                plexServer.AccessToken = device.Attributes["token"].InnerText;
+                plexServer.MachineIdentifier = device.Attributes["clientIdentifier"].InnerText;
 
                 retval.Add(plexServer);
             }

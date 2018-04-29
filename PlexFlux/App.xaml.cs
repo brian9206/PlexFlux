@@ -4,6 +4,11 @@ using System.Windows;
 using System.Reflection;
 using System.Net;
 using System.Threading;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
+using System.Xml;
+using System.IO;
+using System.Collections.Generic;
 using NAudio.CoreAudioApi;
 using PlexLib;
 using PlexFlux.UI;
@@ -33,8 +38,12 @@ namespace PlexFlux
 
         public TaskScheduler uiContext;
 
+        private static List<string> untrustedCertificates = new List<string>();
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificateValidationError_Callback);
+
             if (!appMutex.WaitOne(TimeSpan.Zero, true))
             {
                 MessageBox.Show("PlexFlux is already running.\nOnly one instance at a time.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Exclamation);
@@ -92,6 +101,92 @@ namespace PlexFlux
 
             //base.OnExit(e);
             Environment.Exit(e.ApplicationExitCode);
+        }
+
+        private bool CertificateValidationError_Callback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            // accept no error
+            if (sslPolicyErrors == SslPolicyErrors.None)
+                return true;
+
+            // for security, we do not accept anything that is unknown
+            if (!(sender is WebRequest))
+                return false;
+
+            var request = sender as WebRequest;
+
+            // we do not want to send our username and password to hacker
+            if (request.RequestUri.Host == "plex.tv" || request.RequestUri.Host == "app.plex.tv")
+                return false;
+
+            var hash = certificate.GetCertHashString();
+
+            if (untrustedCertificates.Contains(hash))
+                return false;
+
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+#if DEBUG
+                "PlexFlux_d"
+#else
+                "PlexFlux"
+#endif
+                , "trusted_certificates.xml");
+
+            XmlDocument xml = new XmlDocument();
+
+            try
+            {
+                xml.LoadXml(File.ReadAllText(path));
+            }
+            catch
+            {
+                // File is not created or cannot be accessed
+                var declaration = xml.CreateXmlDeclaration("1.0", "utf-8", null);
+                xml.AppendChild(declaration);
+
+                var rootNode = xml.CreateElement("trusted");
+                xml.AppendChild(rootNode);
+            }
+
+            var trustedNode = xml.SelectSingleNode("/trusted");
+
+            foreach (XmlNode certificateNode in trustedNode.SelectNodes("certificate"))
+            {
+                if (certificateNode.InnerText == hash)
+                    return true;
+            }
+
+            // not listed in trusted certificate
+            if (MessageBox.Show("Do you want to trust the following SSL certificate?\n\n" +
+                "[Connecting Host]\n" +
+                request.RequestUri.Host + "\n\n" +
+                certificate.ToString() + "\n" +
+                "--- WARNING ---\nIf you are not sure, you should not trust any certificate as your information can be evaspdropped by hacker.", "SSL Policy", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                lock (untrustedCertificates)
+                    untrustedCertificates.Add(hash);
+
+                plexConnection = null;
+                plexClient = null;
+
+                return false;
+            }
+
+            var certNode = xml.CreateElement("certificate");
+            certNode.InnerText = hash;
+
+            trustedNode.AppendChild(certNode);
+
+            // save it to path
+            var dir = Path.GetDirectoryName(path);
+
+            if (Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            using (var file = File.Open(path, System.IO.FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+                xml.Save(file);
+
+            return true;
         }
 
         public async Task<PlexServer[]> GetPlexServers()

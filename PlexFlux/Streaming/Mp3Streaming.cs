@@ -16,6 +16,7 @@ namespace PlexFlux.Streaming
         private StreamingWaveProvider waveProvider;
         private ManualResetEvent instantiateWaitHandle;
         private TimeSpan startTime;
+        private int samplingRate;
         
         public bool Started
         {
@@ -68,13 +69,14 @@ namespace PlexFlux.Streaming
                 );
         }
 
-        public Mp3Streaming(HttpWebRequest request)
+        public Mp3Streaming(HttpWebRequest request, int samplingRate)
         {
             this.request = request;
             sourceStream = null;
             waveProvider = null;
             instantiateWaitHandle = new ManualResetEvent(false);
             Current = TimeSpan.Zero;
+            this.samplingRate = samplingRate;
 
             // set timeout
             this.request.Timeout = 10 * 1000;
@@ -153,7 +155,7 @@ namespace PlexFlux.Streaming
 
                 if (decompressor == null)
                 {
-                    WaveFormat waveFormat = new Mp3WaveFormat(frame.SampleRate, frame.ChannelMode == ChannelMode.Mono ? 1 : 2, frame.FrameLength, frame.BitRate);
+                    WaveFormat waveFormat = new Mp3WaveFormat(samplingRate == 0 ? frame.SampleRate : samplingRate, frame.ChannelMode == ChannelMode.Mono ? 1 : 2, frame.FrameLength, frame.BitRate);
                     decompressor = new AcmMp3FrameDecompressor(waveFormat);
 
                     var app = (App)Application.Current;
@@ -162,7 +164,7 @@ namespace PlexFlux.Streaming
                     if (!app.config.DisableDiskCaching)
                     {
                         // calculate decompressed wave size
-                        waveSize = (ulong)(waveFormat.SampleRate * 16 * waveFormat.Channels * PlaybackManager.GetInstance().Track.Duration / 8);    // workaround: 16 = waveFormat.BitsPerSample, sometimes waveFormat.BitsPerSample is equals to 0
+                        waveSize = (ulong)((samplingRate == 0 ? frame.SampleRate : samplingRate) * 16 * waveFormat.Channels * PlaybackManager.GetInstance().Track.Duration / 8);    // workaround: 16 = waveFormat.BitsPerSample, sometimes waveFormat.BitsPerSample is equals to 0
                     }
 
                     waveProvider = new StreamingWaveProvider(decompressor.OutputFormat, waveSize)

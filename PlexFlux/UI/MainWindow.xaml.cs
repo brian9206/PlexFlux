@@ -143,10 +143,10 @@ namespace PlexFlux.UI
             var playQueue = PlayQueueManager.GetInstance();
             playQueue.TrackChanged += PlayQueue_TrackChanged;
 
-            Initialize();
+            new Func<object>(() => Initialize())();
         }
 
-        private async void Initialize()
+        private async Task Initialize()
         {
             var app = (App)Application.Current;
             var playQueue = PlayQueueManager.GetInstance();
@@ -162,6 +162,13 @@ namespace PlexFlux.UI
 
             if (server == null)
                 server = app.SelectPlexServer();
+
+            if (server == null)
+            {
+                app.myPlexClient = new MyPlexClient(app.deviceInfo);
+                await Initialize();
+                return;
+            }
 
             await app.ConnectToPlexServer(server);
 

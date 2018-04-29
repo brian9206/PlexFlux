@@ -161,12 +161,13 @@ namespace PlexFlux
 
         private Task PlaybackTask()
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 var app = (App)Application.Current;
 
                 // make transcode URL
                 var url = app.plexClient.GetMusicTranscodeUrl(Track, app.config.TranscodeBitrate < 0 ? 320 : app.config.TranscodeBitrate);
+                int samplingRate = 0;
 
                 if (app.config.TranscodeBitrate < 0)
                 {
@@ -174,11 +175,23 @@ namespace PlexFlux
                     var media = Track.FindByFormat("mp3");
 
                     if (media != null)
+                    {
+                        try
+                        {
+                            samplingRate = await app.plexClient.GetSamplingRate(Track);
+                        }
+                        catch
+                        {
+                            // auto detect
+                            samplingRate = 0;
+                        }
+
                         url = app.plexConnection.BuildRequestUrl(media.Url);
+                    }
                 }
 
                 // start streaming
-                streaming = new Mp3Streaming(app.plexConnection.CreateRequest(url));
+                streaming = new Mp3Streaming(app.plexConnection.CreateRequest(url), samplingRate);
                 var sourceProvider = streaming.Start();
 
                 // check if we have aborted

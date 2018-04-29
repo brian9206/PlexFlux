@@ -9,14 +9,10 @@ namespace PlexLib
 {
     public class PlexServer
     {
-        private string selectedAddress = null;
-
         public string Url
         {
-            get
-            {
-                return Scheme + "://" + selectedAddress + ":" + Port;
-            }
+            get;
+            private set;
         }
 
         public string Name
@@ -32,18 +28,6 @@ namespace PlexLib
         }
 
         public string[] LocalAddressList
-        {
-            get;
-            internal set;
-        }
-
-        public int Port
-        {
-            get;
-            internal set;
-        }
-
-        public string Scheme
         {
             get;
             internal set;
@@ -65,8 +49,13 @@ namespace PlexLib
         {
             get
             {
-                return selectedAddress != null;
+                return Url != null;
             }
+        }
+
+        internal PlexServer()
+        {
+            Url = null;
         }
 
         public bool SelectAddress()
@@ -89,7 +78,7 @@ namespace PlexLib
 
             if (tasks[index].Result)
             {
-                selectedAddress = LocalAddressList[index];
+                Url = LocalAddressList[index];
 
                 // abort all connections
                 foreach (var request in requests)
@@ -112,7 +101,7 @@ namespace PlexLib
                 if (!CheckConnectivity(request))
                     return false;
 
-                selectedAddress = Address;
+                Url = Address;
             }
 
             return true;
@@ -143,14 +132,13 @@ namespace PlexLib
 
         private HttpWebRequest CreateConnectivityRequest(string address)
         {
-            var request = (HttpWebRequest)WebRequest.Create(Scheme + "://" + address + ":" + Port + "/identity");
+            var host = new Uri(address);
+            var uri = new Uri(host, "/identity");
+
+            var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
             request.Timeout = 5 * 1000;
 
             return request;
-        }
-
-        internal PlexServer()
-        {
         }
 
         public override string ToString()
