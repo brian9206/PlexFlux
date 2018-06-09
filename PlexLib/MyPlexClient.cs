@@ -107,6 +107,18 @@ namespace PlexLib
                     }
                 }
 
+                if (address == null)
+                {
+                    if (localAddresses.Count > 0)
+                    {
+                        address = localAddresses[0];
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
                 var plexServer = new PlexServer();
                 plexServer.Name = device.Attributes["name"].InnerText;
                 plexServer.Address = address;

@@ -69,7 +69,7 @@ namespace PlexLib
                 int idx = i;
                 tasks[idx] = Task.Run(() =>
                 {
-                    requests[idx] = CreateConnectivityRequest(LocalAddressList[idx]);
+                    requests[idx] = CreateConnectivityRequest(LocalAddressList[idx], true);
                     return CheckConnectivity(requests[idx]);
                 });
             }
@@ -109,6 +109,9 @@ namespace PlexLib
 
         private bool CheckConnectivity(HttpWebRequest request)
         {
+            if (request == null)
+                return false;
+
             try
             {
                 var response = request.GetResponse();
@@ -125,18 +128,21 @@ namespace PlexLib
             }
             catch (Exception)
             {
-                System.Threading.Thread.Sleep(5000);
+                //System.Threading.Thread.Sleep(5000);
                 return false;
             }
         }
 
-        private HttpWebRequest CreateConnectivityRequest(string address)
+        private HttpWebRequest CreateConnectivityRequest(string address, bool local = false)
         {
+            if (address == null)
+                return null;
+
             var host = new Uri(address);
             var uri = new Uri(host, "/identity");
 
             var request = (HttpWebRequest)WebRequest.Create(uri.ToString());
-            request.Timeout = 5 * 1000;
+            request.Timeout = (local ? 1 : 5) * 1000;
 
             return request;
         }

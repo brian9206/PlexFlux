@@ -13,6 +13,7 @@ using NAudio.CoreAudioApi;
 using PlexLib;
 using PlexFlux.UI;
 using Octokit;
+using System.Net.Http;
 
 namespace PlexFlux
 {
@@ -84,6 +85,11 @@ namespace PlexFlux
             myPlexClient = new MyPlexClient(deviceInfo, config.AuthenticationToken.Length == 0 ? null : config.AuthenticationToken);
             plexConnection = null;
             plexClient = null;
+
+            // set default user-agent
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", deviceInfo.UserAgent);
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
 
             // init IPC
             var ipc = IPCManager.GetInstance();

@@ -9,7 +9,7 @@ A music player for Plex
 
 ### System Requirement
 * Windows 7 or above (Desktop Experience must be enabled for Windows Server)
-* [.NET Framework 4.6.1 Full](https://www.microsoft.com/en-us/download/details.aspx?id=49982) installed
+* [.NET Framework 4.6.2 Full](https://www.microsoft.com/en-us/download/details.aspx?id=53344) installed
 * Internet connection
 
 ## Features

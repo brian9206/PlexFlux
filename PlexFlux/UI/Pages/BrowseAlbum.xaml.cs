@@ -250,7 +250,7 @@ namespace PlexFlux.UI.Pages
                 var mainWindow = MainWindow.GetInstance();
                 mainWindow.FlashPlaylist(playlist);
             }
-            catch (Exception exx)
+            catch
             {
                 MessageBox.Show("Could not fetch data from remote server.", "PlexFlux", MessageBoxButton.OK, MessageBoxImage.Error);
             }
